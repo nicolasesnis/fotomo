@@ -23,7 +23,7 @@ components.html(height=10000, scrolling=True, html="""
 
 <script type="text/javascript">
   var feed = new Instafeed({
-    accessToken: "token",
+    accessToken: '""" + st.secrets["instagram_user_token"] + """"',
     template:'<a href="{{link}}"><img style="max-width: 200px; max-height: 200px" title="{{caption}}" src="{{image}}" /></a>'
   });
   feed.run();
