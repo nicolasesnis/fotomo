@@ -1,6 +1,6 @@
 import streamlit as st
 import os, json
-# from src.google_photos.utils import list_albums, list_album_photos
+from src.google_photos.utils import list_albums, list_album_photos
 
 st.set_page_config(
 	# layout = "centered",
@@ -44,8 +44,8 @@ def add_logo():
 add_logo()
 st.title('Galerie')
 
-# all_albums = list_albums()
-# album_id = all_albums.loc[all_albums.title == 'Galerie', 'id'].values[0]
-# photos = list_album_photos(album_id)
-# for index, row in photos.iterrows():  
-#   st.image(row.baseUrl, use_column_width='auto')
+all_albums = list_albums()
+album_id = all_albums.loc[all_albums.title == 'Galerie', 'id'].values[0]
+photos = list_album_photos(album_id)
+for index, row in photos.iterrows():  
+  st.image(row.baseUrl, use_column_width='auto')
