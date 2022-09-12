@@ -1,6 +1,6 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import os, json
-from src.google_photos.utils import list_albums, list_album_photos
 
 st.set_page_config(
 	# layout = "centered",
@@ -42,10 +42,29 @@ def add_logo():
         unsafe_allow_html=True,
     )
 add_logo()
-st.title('Galerie')
+st.title('Fotomo')
 
-all_albums = list_albums()
-album_id = all_albums.loc[all_albums.title == 'Galerie', 'id'].values[0]
-photos = list_album_photos(album_id)
-for index, row in photos.iterrows():  
-  st.image(row.baseUrl, use_column_width='auto')
+components.html(height=1000, scrolling=True, html="""
+<script
+  type="text/javascript"
+  src="https://unpkg.com/instafeed.js@2.0.0-rc2/src/instafeed.js"
+></script>
+
+<div id="instafeed"></div>
+
+<script type="text/javascript">
+  var feed = new Instafeed({
+  accessToken: '""" + secrets["instagram_user_token"] + """"',
+  template:
+    '<a href="{{link}}" target="_blank"><img style="max-height: 300px" title="{{caption}}" src="{{image}}" /></a>',
+  transform: function (item) {
+    //Transform receives each item as its argument
+    // Over-write the original timestamp
+    console.log(item)
+    // return the modified item
+    return item;
+  },
+});
+feed.run();
+</script>
+""")
