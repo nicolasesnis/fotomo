@@ -20,7 +20,7 @@ def list_albums():
     df = pd.DataFrame(items)
     return df
 
-def list_album_photos(album_id):
+def list_album_photos(album_id, size=None):
     items = []
     nextpagetoken = None
     # The default number of media items to return at a time is 25. The maximum pageSize is 100.
@@ -35,6 +35,11 @@ def list_album_photos(album_id):
         
     # Convert the list of dict into a dataframe.
     df = pd.DataFrame(items)
+    
+    if size == 'original':
+        df['original_height'] = df['mediaMetadata'].apply(lambda x: x['height'])
+        df['original_width'] = df['mediaMetadata'].apply(lambda x: x['width'])
+        df['baseUrl'] = df.apply(lambda x: x['baseUrl'] + '=w' + x['original_width'] + '-h' + x['original_height'], axis=1)
     return df
 
 
