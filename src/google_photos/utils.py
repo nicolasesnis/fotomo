@@ -1,5 +1,4 @@
 from src.google_photos.build import authenticate
-import os
 import json
 import requests
 import pandas as pd
