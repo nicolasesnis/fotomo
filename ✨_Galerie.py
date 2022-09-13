@@ -19,30 +19,30 @@ else: # streamlit cloud
   
 
 
-def add_logo():
-    st.markdown(
-        """
-        <style>
-            [data-testid="stSidebarNav"] {
-                background-image: url(https://drive.google.com/uc?export=view&id=1DHb3O60Yi26sb6vhg1mxdM1IU0cCpefr);
-                background-size: 80%;
-                background-repeat: no-repeat;
-                padding-top: 90px;
-                background-position: 20px 20px;
-            }
-            [data-testid="stSidebarNav"]::before {
-                content: "";
-                margin-left: 20px;
-                margin-top: 20px;
-                font-size: 30px;
-                position: relative;
-                top: 100px;
-            }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-add_logo()
+# def add_logo():
+#     st.markdown(
+#         """
+#         <style>
+#             [data-testid="stSidebarNav"] {
+#                 background-image: url(https://drive.google.com/uc?export=view&id=1DHb3O60Yi26sb6vhg1mxdM1IU0cCpefr);
+#                 background-size: 80%;
+#                 background-repeat: no-repeat;
+#                 padding-top: 90px;
+#                 background-position: 20px 20px;
+#             }
+#             [data-testid="stSidebarNav"]::before {
+#                 content: "";
+#                 margin-left: 20px;
+#                 margin-top: 20px;
+#                 font-size: 30px;
+#                 position: relative;
+#                 top: 100px;
+#             }
+#         </style>
+#         """,
+#         unsafe_allow_html=True,
+#     )
+# add_logo()
 
 
 st.success('Bienvenue sur Fotomo.fr! Le site est actuellement en cours de développement. Contactez-moi directement à valerie.esnis@fotomo.fr pour tout demande ou question.')
