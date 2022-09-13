@@ -43,11 +43,17 @@ def add_logo():
         unsafe_allow_html=True,
     )
 add_logo()
+
+
+st.success('Bienvenue sur Fotomo.fr! Le site est actuellement en cours de développement. Contactez-moi directement à valerie.esnis@fotomo.fr pour tout demande ou question.')
 st.title('Galerie')
 
 
 all_albums = list_albums()
 album_id = all_albums.loc[all_albums.title == 'Galerie', 'id'].values[0]
 photos = list_album_photos(album_id)
+photos['original_height'] = photos['mediaMetadata'].apply(lambda x: x['height'])
+photos['original_width'] = photos['mediaMetadata'].apply(lambda x: x['width'])
+photos['baseUrl'] = photos.apply(lambda x: x['baseUrl'] + '=w' + x['original_width'] + '-h' + x['original_height'], axis=1)
 for index, row in photos.iterrows():  
-  st.image(row.baseUrl, use_column_width='auto')
+  st.image(row.baseUrl, use_column_width='auto', caption=row.filename.split('.')[0])
