@@ -10,11 +10,8 @@ st.set_page_config(
     page_icon = "📷"
 )
 
-if 'secrets.json' in os.listdir(): # localhost
-      with open('secrets.json', 'r')  as f:
-        secrets = json.load(f)
-else: # streamlit cloud
-      secrets = st.secrets
+
+secrets = st.secrets
   
 
 

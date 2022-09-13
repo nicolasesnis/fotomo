@@ -1,3 +1,1 @@
-secrets.json
-src/google_photos/credentials.json
-src/google_photos/token.pickle
+.streamlit/secrets.toml
