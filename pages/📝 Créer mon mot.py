@@ -12,7 +12,7 @@ st.set_page_config(
 
 
 
-# @st.cache
+@st.cache
 def load_letters():
     all_albums = list_albums()
     letters = {}
