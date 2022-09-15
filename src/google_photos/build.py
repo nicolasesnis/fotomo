@@ -3,6 +3,7 @@ import os
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 def authenticate():
@@ -31,3 +32,11 @@ def authenticate():
     google_photos = build('photoslibrary', 'v1', credentials=creds, static_discovery=False)
     return google_photos
 
+
+def authenticate_with_service_account():
+    SCOPES = ['https://www.googleapis.com/auth/photoslibrary']
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+                'photos-manager-347304-af417add9d6f.json', SCOPES)
+    google_photos = build('photoslibrary', 'v1', credentials=credentials, static_discovery=False)
+    return google_photos

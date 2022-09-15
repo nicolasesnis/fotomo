@@ -1,6 +1,5 @@
-from json import load
 import streamlit as st
-from src.google_photos.utils import list_albums, list_album_photos
+from src.s3.list_photos import list_bucket
 
 st.set_page_config(
 	# layout = "centered",
@@ -11,16 +10,16 @@ st.set_page_config(
 )
 
 
-
 @st.cache
 def load_letters():
-    all_albums = list_albums()
+    all_albums = list_bucket('s3://fotomo')
     letters = {}
-    for index, album in all_albums.iterrows():
-        if album.title not in ['Logos', 'Galerie']:
-
-            photos = list_album_photos(album.id, size=None)
-            letters[album.title] = photos.baseUrl
+    for photo in all_albums:
+        album = photo['Key'].split('/')[0]
+        if album not in ['Logos', 'Galerie']:
+            if album not in letters.keys():
+                letters[album] = []
+            letters[album].append('https://fotomo.s3.amazonaws.com/' + photo['Key'])
     return letters 
 letters = load_letters()
 
