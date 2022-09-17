@@ -14,14 +14,14 @@ st.set_page_config(
 
 @st.cache
 def load_letters():
-    all_albums = list_bucket('s3://fotomo')
+    all_albums = list_bucket('s3://low-resolution-images')
     letters = {}
     for photo in all_albums:
         album = photo['Key'].split('/')[0]
         if album not in ['Logos', 'Galerie'] and photo['Key'].split('/')[1] != "":
             if album not in letters.keys():
                 letters[album] = {}
-            letters[album][photo['Key'].split('/')[1].split('.')[0]] = {'path': 'https://fotomo.s3.amazonaws.com/' + photo['Key']}
+            letters[album][photo['Key'].split('/')[1].split('.')[0]] = {'path': 'https://low-resolution-images.s3.amazonaws.com/' + photo['Key']}
     return letters 
 letters_photos = load_letters()
 
@@ -72,7 +72,7 @@ if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_rese
 
 
 if text != '':
-    cols = st.columns(len(list(text)))
+    cols = st.columns(len(list(text)), gap='small')
     for letter_index, col in enumerate(cols):
         letter = list(text)[letter_index].upper()
         with col:  
