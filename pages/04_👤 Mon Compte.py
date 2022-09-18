@@ -103,7 +103,7 @@ else: # User is logged in
                         download_s3_file('s3://fotomo/' + item, img_name)
                         image_file = Image.open(img_name)
                         image_file = image_file.convert('RGB')
-                        image_file.save(img_name, quality=50)
+                        image_file.save(img_name, quality=30 if 'Galerie' not in item else 100)
                         upload_s3_file(img_name, 's3://low-resolution-images/' + item)
                         os.remove(img_name)                    
         if st.button('Sync Photos'):
@@ -114,7 +114,3 @@ else: # User is logged in
     
     
         
-
-# cookie_manager.set('token', '123', expires_at=datetime.datetime(year=2030, month=2, day=2))
-# token = cookie_manager.get('token')
-# st.write(token)

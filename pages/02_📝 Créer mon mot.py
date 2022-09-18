@@ -1,6 +1,8 @@
 import streamlit as st
+import datetime
 from src.s3.list_photos import list_bucket
 from random import randrange
+import extra_streamlit_components as stx
 
 
 st.set_page_config(
@@ -10,6 +12,12 @@ st.set_page_config(
 	page_title = "Fotomo.fr",
     page_icon = "📷"
 )
+
+@st.cache(allow_output_mutation=True)
+def get_manager():
+    return stx.CookieManager()
+
+cookie_manager = get_manager()
 
 
 @st.cache
@@ -49,8 +57,16 @@ def func(text):
     
 def set_allow_reset_text_dict():
     st.session_state['allow_reset_text_dict'] = True
-    
-text = st.text_input('Entrez un mot ou une phrase...', on_change=set_allow_reset_text_dict)
+
+st.info("Les lettres s'affichent en moindre qualité. Passez commande de votre mot pour recevoir les photos en bonne qualité.")
+
+cookies = cookie_manager.get_all()
+text_dict = cookie_manager.get('text_dict')
+if text_dict:
+    st.session_state['text_dict'] = {int(key): value for key, value in text_dict.items()}
+
+initial_value = '' if 'text_dict' not in st.session_state else ''.join([value['letter'] for key, value in  st.session_state['text_dict'].items()])
+text = st.text_input('Entrez un mot ou une phrase...', value=initial_value,  on_change=set_allow_reset_text_dict)
 
 if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_reset_text_dict']:
     text_dict = {}
@@ -69,9 +85,10 @@ if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_rese
         )    
         if  text_dict != {}:
             st.session_state['text_dict'] = text_dict
+    cookie_manager.set('text_dict', st.session_state['text_dict'], expires_at=datetime.datetime(year=2030, month=2, day=2))
 
 
-if text != '':
+if text != '' and 'text_dict' in st.session_state:
     cols = st.columns(len(list(text)), gap='small')
     for letter_index, col in enumerate(cols):
         letter = list(text)[letter_index].upper()
@@ -81,6 +98,7 @@ if text != '':
                     st.session_state['allow_reset_text_dict'] = False
                     index = get_next_index(letter, st.session_state['text_dict'])
                     st.session_state['text_dict'][letter_index].update(update_photo(letter, index))
+                    cookie_manager.set('text_dict', st.session_state['text_dict'], expires_at=datetime.datetime(year=2030, month=2, day=2))
                 image = st.session_state['text_dict'][letter_index]['letter_photo_path']
                 st.image(image, use_column_width='auto')
                 # header_html = '<img src="' + image + '" style="width: 50%; height: 50%"/>' 
@@ -93,6 +111,10 @@ if text != '':
                 st.write(letter)
 
 if 'text_dict' in st.session_state:
-    st.write('Photos sélectionnées:')
-    st.write(st.session_state['text_dict'])
-
+    if 'user_token' not in cookies:
+        if st.button('Ajouter au panier'):
+            st.write('sucess')
+        
+            
+    else:        
+        st.write(cookies)
