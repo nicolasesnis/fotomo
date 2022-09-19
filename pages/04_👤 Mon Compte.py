@@ -96,14 +96,17 @@ else: # User is logged in
             private = [i['Key'] for i in list_bucket('s3://fotomo/')]
             public = [i['Key'] for i in list_bucket('s3://low-resolution-images/')]
             for item in private:
-                if item not in public:
+                if item not in public or 1==1:
                     if '.' in item: # ignore albums
                         img_name = item.split('/')[-1]
-                        st.write(img_name)
                         download_s3_file('s3://fotomo/' + item, img_name)
                         image_file = Image.open(img_name)
                         image_file = image_file.convert('RGB')
-                        image_file.save(img_name, quality=30 if 'Galerie' not in item else 100)
+                        if 'Galerie' not in item:
+                            image_file.save(img_name, quality = 5   )
+                            st.write(img_name)
+                        else:
+                            image_file.save(img_name, quality= 100)
                         upload_s3_file(img_name, 's3://low-resolution-images/' + item)
                         os.remove(img_name)                    
         if st.button('Sync Photos'):

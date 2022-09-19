@@ -60,19 +60,24 @@ def set_allow_reset_text_dict():
 
 st.info("Les lettres s'affichent en moindre qualité. Passez commande de votre mot pour recevoir les photos en bonne qualité.")
 
-cookies = cookie_manager.get_all()
-text_dict = cookie_manager.get('text_dict')
+
+text_dict = cookie_manager.get(cookie='text_dict')
+
 if text_dict:
     st.session_state['text_dict'] = {int(key): value for key, value in text_dict.items()}
 
 initial_value = '' if 'text_dict' not in st.session_state else ''.join([value['letter'] for key, value in  st.session_state['text_dict'].items()])
 text = st.text_input('Entrez un mot ou une phrase...', value=initial_value,  on_change=set_allow_reset_text_dict)
 
+
 if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_reset_text_dict']:
     text_dict = {}
     for letter_index, letter in enumerate(list(text)):
         letter = letter.upper()
         if letter not in letters_photos.keys():
+            if letter_index == len(list(text)) - 1 and text_dict == {}:
+                st.error('Veuillez entrer au moins 1 charactère alphabétique.')
+                break
             continue
         if letter not in [text_dict[key]['letter'] for key in text_dict.keys()]:
             index  = 0
@@ -83,9 +88,11 @@ if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_rese
         text_dict[letter_index].update(
             update_photo(letter, index)
         )    
+        
         if  text_dict != {}:
             st.session_state['text_dict'] = text_dict
-    cookie_manager.set('text_dict', st.session_state['text_dict'], expires_at=datetime.datetime(year=2030, month=2, day=2))
+        
+    cookie_manager.set('text_dict', st.session_state['text_dict'], expires_at=datetime.datetime(year=2030, month=2, day=2), key='init_word')
 
 
 if text != '' and 'text_dict' in st.session_state:
@@ -98,7 +105,6 @@ if text != '' and 'text_dict' in st.session_state:
                     st.session_state['allow_reset_text_dict'] = False
                     index = get_next_index(letter, st.session_state['text_dict'])
                     st.session_state['text_dict'][letter_index].update(update_photo(letter, index))
-                    cookie_manager.set('text_dict', st.session_state['text_dict'], expires_at=datetime.datetime(year=2030, month=2, day=2))
                 image = st.session_state['text_dict'][letter_index]['letter_photo_path']
                 st.image(image, use_column_width='auto')
                 # header_html = '<img src="' + image + '" style="width: 50%; height: 50%"/>' 
@@ -110,11 +116,30 @@ if text != '' and 'text_dict' in st.session_state:
             else:
                 st.write(letter)
 
+
 if 'text_dict' in st.session_state:
-    if 'user_token' not in cookies:
-        if st.button('Ajouter au panier'):
-            st.write('sucess')
+    if not cookie_manager.get(cookie='user_token'):
+        def add_to_cart(item):
+            basket = cookie_manager.get(cookie='basket')
+            if not basket:
+                basket = [st.session_state['text_dict']]
+            if item not in basket:
+                basket.append(st.session_state['text_dict'])
+                st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://share.streamlit.io)'
+                cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key='basket')            
+            else:   
+                st.session_state['atc_message'] = 'Cette combinaison de photos est déjà dans votre panier.'
+            
         
+        if st.button('Ajouter au panier'):
+            add_to_cart(item = st.session_state['text_dict'])
+        if 'atc_message' in st.session_state:
+            st.success(st.session_state['atc_message'])
+            
+            
+                
+            
+                
             
     else:        
-        st.write(cookies)
+        st.write('you are logged in')
