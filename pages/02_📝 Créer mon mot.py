@@ -19,7 +19,7 @@ def get_manager():
 
 cookie_manager = get_manager()
 
-
+st.write(st.session_state)
 @st.cache
 def load_letters():
     all_albums = list_bucket('s3://low-resolution-images')
