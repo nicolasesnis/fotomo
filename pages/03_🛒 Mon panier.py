@@ -19,7 +19,7 @@ st.set_page_config(
     page_icon = "📷"
 )
 
-# Login
+
 @st.cache(allow_output_mutation=True)
 def get_manager():
     return stx.CookieManager()
@@ -28,63 +28,84 @@ cookie_manager = get_manager()
 
 basket = cookie_manager.get(cookie='basket')
 
-if basket is None:
-    st.warning('Votre panier est vide.')
-else:
-    st.subheader('Il y  a ' + str(len(basket)) + ' sélection(s) dans votre panier')
-    if st.button('Passer commande'):
-        st.success('Success')
+
+def save_basket(basket, item_index):
+    cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key=str(item_index) + '_' + text)            
     
-
-@st.cache 
-def load_full_word(urls):
-    images = []
-    for url in urls:
-        # st.write('Téléchargement de', url.split('/')[-1], '...')
-        with urllib.request.urlopen(urllib.parse.quote(url).replace('https%3A', 'https:')) as url:    
-            # st.write(url)    
-            img = Image.open(url)
-        images.append(img)
-    # st.write('Juxtaposition des photos...')
-    widths, heights = zip(*(i.size for i in images))
-    total_width = sum(widths)
-    max_height = max(heights)
-    new_im = Image.new('RGB', (total_width, max_height), color = (255,255,255))
-    x_offset = 0
-    for im in images:
-        new_im.paste(im, (x_offset,0))
-        x_offset += 100 +  im.size[0]
-    return new_im
-    # pick the image which is the smallest, and resize the others to match it (can be arbitrary image shape here)
-    # min_shape = sorted( [(np.sum(i.size), i.size ) for i in images])[0][1]
-    # imgs_comb = np.hstack( (np.asarray( i.resize(min_shape) ) for i in images ) )
-    # imgs_comb = Image.fromarray( imgs_comb)
-    # return imgs_comb
+frames = {
+        'Sans cadre': 0, 
+        'Sous verre, clipsé (+ 7€)': 7,
+        'Cadre en bois, couleur noire (+ 20€)': 20
+    }
     
-for item_index, item in enumerate(basket):
-    word = ''.join([value['letter'] for key, value in item.items() if key != 'quantity'])
+non_letter_keys = ['quantity', 'frame', 'price']
+
+def get_prices(basket):
+    # price per letter: 5
     
-    with st.expander('#' +  str(item_index + 1)  + ' - ' + word, expanded = True if item_index== 0 else False):
-        if st.button('🔎 Afficher le mot', key=str(item_index)) or item_index == 0:
-            urls = [value['letter_photo_path'] for key, value in item.items() if key != 'quantity']
-            new_im = load_full_word(urls)
-            st.image(new_im, )
-        
-        if 'quantity' in item.keys():
-            quantity = item['quantity']
-        else:
-            quantity = 1
-        basket[item_index]['quantity'] = int(st.number_input('Quantité:', value=quantity, key=str(item_index) + "_"))
-        
-        
-        cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key=str(item_index) + '_quantity')            
-        if st.button('❌ Supprimer du panier', key=str(item_index) + '_delete'):
-            del basket[item_index]
-            cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key=str(item_index) + '_delete_' + word)            
-
-
-
-
+    for item_index, item in enumerate(basket):
+        basket[item_index]['price'] = 0
+        for key, value in item.items():
+            if key not in non_letter_keys:
+                basket[item_index]['price'] += 5
+            elif key == 'frame':
+                basket[item_index]['price'] += frames[value]
+    
+            
+            
+            
             
 
+if basket is None or len(basket) == 0:
+    st.info('Votre panier est vide ! Dirigez-vous vers la section "Créer mon mot" pour effectuer une sélection.')
+else:
+    get_prices(basket)
+    st.info('Les photos sont imprimées professionnellement en format 10 x 15 cm, finition brillante, sur papier Fujifilm épais (210 g/m2).')
+    st.subheader('Il y  a ' + str(len(basket)) + ' sélection(s) dans votre panier')
+    col1, col2 = st.columns([3,1])
+    with col1:
+        st.write('Sous-total avant les frais de livraison : __' +  str(sum([item['price'] for item in basket])) + '__ €')
+    
+    with col2:
+        if st.button('Valider le panier ✅ '):
+            st.success('Success')
+    
+    for item_index, item in enumerate(basket):
         
+        text = ''.join([value['letter'] for key, value in item.items() if key not in non_letter_keys])
+        text_list = [value for key, value in item.items() if key not in non_letter_keys]
+        
+        with st.expander('#' +  str(item_index + 1)  + ' - Mot : ' + text, expanded = True if item_index== 0 else False):
+            
+            cols = st.columns(len(text_list), gap='small')
+            for letter_index, col in enumerate(cols):
+                with col:  
+                    st.image(text_list[letter_index]['letter_photo_path'], use_column_width='auto')
+            
+            
+            
+            if 'frame' in item.keys():
+                frame = item['frame']
+            else:
+                frame = 'Sans cadre'
+            basket[item_index]['frame'] =  st.radio('Option: Cadre', frames.keys(), index=list(frames.keys()).index(frame), on_change=save_basket, kwargs={'basket': basket, 'item_index': item_index}, key=str(item_index) + "_radio_" + text)
+                
+            
+            if 'quantity' in item.keys():
+                quantity = item['quantity']
+            else:
+                quantity = 1
+                
+            basket[item_index]['quantity'] = int(st.number_input('Quantité:',min_value=1, value=quantity, key=str(item_index) + "_quantity_" + text, on_change=save_basket, kwargs={'basket': basket, 'item_index': item_index}))
+            
+            if st.button('❌ Supprimer du panier', key=str(item_index) + "_delete_" + text):
+                del basket[item_index]
+                save_basket(basket, item_index)
+                
+
+
+
+
+                
+
+            

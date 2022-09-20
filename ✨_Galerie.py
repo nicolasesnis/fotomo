@@ -20,7 +20,7 @@ else: # streamlit cloud
 st.success('Bienvenue sur Fotomo.fr! Le site est actuellement en cours de développement. Contactez-moi directement à valerie.esnis@fotomo.fr pour tout demande ou question.')
 st.title('Galerie')
 
-galerie = list_bucket('s3://low-resolution-images/Galerie')
+galerie = list_bucket('s3://fotomo/Galerie')
 for photo in galerie:
     st.image('https://low-resolution-images.s3.amazonaws.com/' + photo['Key'],  caption=photo['Key'].split('/')[1].split('.')[0])
     

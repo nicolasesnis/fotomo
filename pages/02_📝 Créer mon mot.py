@@ -117,12 +117,13 @@ if text != '' and 'text_dict' in st.session_state:
                 st.write(letter)
 
 
+
 if 'text_dict' in st.session_state:
     if not cookie_manager.get(cookie='user_token'):
         def add_to_cart(item):
             basket = cookie_manager.get(cookie='basket')
-            if not basket:
-                basket = [st.session_state['text_dict']]
+            if basket is None:
+                basket = []
             if item not in basket:
                 basket.append(st.session_state['text_dict'])
                 st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://share.streamlit.io)'
@@ -135,11 +136,5 @@ if 'text_dict' in st.session_state:
             add_to_cart(item = st.session_state['text_dict'])
         if 'atc_message' in st.session_state:
             st.success(st.session_state['atc_message'])
-            
-            
-                
-            
-                
-            
     else:        
         st.write('you are logged in')
