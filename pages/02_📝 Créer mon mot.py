@@ -19,8 +19,8 @@ def get_manager():
 
 cookie_manager = get_manager()
 
-st.write(st.session_state)
-st.write(cookie_manager.get(cookie='text_dict'))
+
+
 @st.cache
 def load_letters():
     all_albums = list_bucket('s3://low-resolution-images')
@@ -66,6 +66,8 @@ text_dict = cookie_manager.get(cookie='text_dict')
 
 if text_dict:
     st.session_state['text_dict'] = {int(key): value for key, value in text_dict.items()}
+else:
+    st.session_state['text_dict'] = {}
 
 initial_value = '' if 'text_dict' not in st.session_state else ''.join([value['letter'] for key, value in  st.session_state['text_dict'].items()])
 text = st.text_input('Entrez un mot ou une phrase...', value=initial_value,  on_change=set_allow_reset_text_dict)
