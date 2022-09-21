@@ -14,7 +14,7 @@ Image.MAX_IMAGE_PIXELS = 10000000000
 st.set_page_config(
 	# layout = "centered",
     layout = "wide",
-	initial_sidebar_state = "expanded",
+	initial_sidebar_state = "collapsed",
 	page_title = "Mon panier",
     page_icon = "📷"
 )
@@ -26,7 +26,11 @@ def get_manager():
 
 cookie_manager = get_manager()
 
-basket = cookie_manager.get(cookie='basket')
+cookies = cookie_manager.get_all()
+if 'basket' in cookies:
+    basket = cookies['basket']
+else:
+    basket = None
 
 
 def save_basket(basket, item_index):
@@ -77,6 +81,7 @@ else:
         
         with st.expander('#' +  str(item_index + 1)  + ' - Mot : ' + text, expanded = True if item_index== 0 else False):
             
+            
             cols = st.columns(len(text_list), gap='small')
             for letter_index, col in enumerate(cols):
                 with col:  
@@ -89,7 +94,9 @@ else:
             else:
                 frame = 'Sans cadre'
             basket[item_index]['frame'] =  st.radio('Option: Cadre', frames.keys(), index=list(frames.keys()).index(frame), on_change=save_basket, kwargs={'basket': basket, 'item_index': item_index}, key=str(item_index) + "_radio_" + text)
-                
+            
+            if st.button('✨ Prévisualiser avec le cadre en qualité maximale'):
+                st.write('Mum envoie moi les cadres please!')
             
             if 'quantity' in item.keys():
                 quantity = item['quantity']
