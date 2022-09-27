@@ -46,12 +46,20 @@ def get_next_index(letter, text_dict):
 
 def update_photo(letter, index):
     global letters_photos
-    photo_name = list(letters_photos[letter])[index]
-    return {
-        'index': index,
-        'letter_photo_name': photo_name,
-        'letter_photo_path': letters_photos[letter][photo_name]['path']
-    }
+    if letter in letters_photos:
+        photo_name = list(letters_photos[letter])[index]
+        return {
+            'index': index,
+            'letter_photo_name': photo_name,
+            'letter_photo_path': letters_photos[letter][photo_name]['path']
+        }
+    else: # special char or space
+        return {
+            'index': index,
+            'letter_photo_name': letter,
+            'letter_photo_path': None
+        }
+        
 
 def func(text):
     st.write(text)
@@ -59,13 +67,13 @@ def func(text):
 def set_allow_reset_text_dict():
     st.session_state['allow_reset_text_dict'] = True
 
-st.info("Les lettres s'affichent en moindre qualité. Passez commande de votre mot pour recevoir les photos en bonne qualité.")
-
+st.info("📷 Pour protéger mes photos, les lettres s'affichent en moindre qualité. Passez commande de votre mot pour recevoir les photos imprimées professionnellement en format 10 x 15 cm, finition brillante, sur papier Fujifilm épais (210 g/m2).")
+st.info("🏷️ 5€ par photo (4,50 € si 10 photos ou plus sont sélectionnées)")
 
 text_dict = cookie_manager.get(cookie='text_dict')
 
 if text_dict:
-    st.session_state['text_dict'] = {int(key): value for key, value in text_dict.items()}
+    st.session_state['text_dict'] = {int(key): value for key, value in text_dict.items() if type(key) != str}
 else:
     st.session_state['text_dict'] = {}
 
@@ -81,13 +89,12 @@ if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_rese
             if letter_index == len(list(text)) - 1 and text_dict == {}:
                 st.error('Veuillez entrer au moins 1 charactère alphabétique.')
                 break
-            continue
-        if letter not in [text_dict[key]['letter'] for key in text_dict.keys()]:
             index  = 0
-        else:
+        elif letter in [text_dict[key]['letter'] for key in text_dict.keys()]:
             index = get_next_index(letter, text_dict)
+        else:
+            index  = 0
         text_dict[letter_index] = {'letter': letter}
-        photo_name = list(letters_photos[letter])[index]
         text_dict[letter_index].update(
             update_photo(letter, index)
         )    
@@ -128,14 +135,16 @@ if 'text_dict' in st.session_state:
             if basket is None:
                 basket = []
             if item not in basket:
+                item['number_photos'] = len([value for key, value in item.items() if value['letter_photo_path'] is not None])
+                item['text'] = text
+                item['text_len'] = len(text)
                 basket.append(st.session_state['text_dict'])
                 st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://share.streamlit.io)'
                 cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key='basket')            
             else:   
                 st.session_state['atc_message'] = 'Cette combinaison de photos est déjà dans votre panier.'
             
-        
-        if st.button('Ajouter au panier'):
+        if st.button('Ajouter au panier', disabled=text == ''):
             add_to_cart(item = st.session_state['text_dict'])
         if 'atc_message' in st.session_state:
             st.success(st.session_state['atc_message'])

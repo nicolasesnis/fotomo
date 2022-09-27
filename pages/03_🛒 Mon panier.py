@@ -19,6 +19,7 @@ st.set_page_config(
     page_icon = "📷"
 )
 
+non_letter_keys = ['quantity', 'frame', 'price', 'text', 'number_photos', 'text_len']
 
 @st.cache(allow_output_mutation=True)
 def get_manager():
@@ -29,35 +30,58 @@ cookie_manager = get_manager()
 cookies = cookie_manager.get_all()
 if 'basket' in cookies:
     basket = cookies['basket']
+    
 else:
     basket = None
 
 
-def save_basket(basket, item_index):
-    cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key=str(item_index) + '_' + text)            
-    
+def save_basket(basket, item_index, key=None, value=None):
+    if key and value:
+        basket[item_index][key] = value
+    cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key=str(item_index) + '_' + text + '_' + str(key))            
+
+
 frames = {
-        'Sans cadre': 0, 
-        'Sous verre, clipsé (+ 7€)': 7,
-        'Cadre en bois, couleur noire (+ 20€)': 20
+        'Sans cadre': {
+            'min': 0,
+            'max': 999,
+            'unit_price': 0,
+            'unavailable_sizes': []
+            }, 
+        'Sous verre, clipsé': {
+            'min': 0,
+            'unit_price': 3,
+            'max': 10,
+            'unavailable_sizes': []
+            },
+        'Cadre en bois, couleur noire': {
+            3: 28, 
+            4: 35, 
+            5: 42, 
+            6: 65, 
+            9: 97, 
+            'max': 10, 
+            'min': 3, 
+            'unavailable_sizes': [7,8]},
     }
     
-non_letter_keys = ['quantity', 'frame', 'price']
+
 
 def get_prices(basket):
-    # price per letter: 5
-    
     for item_index, item in enumerate(basket):
-        basket[item_index]['price'] = 0
-        for key, value in item.items():
-            if key not in non_letter_keys:
-                basket[item_index]['price'] += 5
-            elif key == 'frame':
-                basket[item_index]['price'] += frames[value]
-    
-            
-            
-            
+        if item['number_photos'] < 10:
+            basket[item_index]['price'] = 5  * item['number_photos']
+        else:
+            basket[item_index]['price'] = 4.5  * item['number_photos']
+        for key, value in item.items():    
+            if key == 'frame':
+                if 'unit_price' in frames[value].keys():
+                    basket[item_index]['price'] += frames[value]['unit_price'] * item['number_photos']
+                elif item['number_photos'] in frames[value].keys():
+                    basket[item_index]['price'] += frames[value][item['text_len']]
+                    
+            if key == 'quantity':
+                basket[item_index]['price'] = basket[item_index]['price'] * basket[item_index]['quantity']
             
 
 if basket is None or len(basket) == 0:
@@ -79,23 +103,39 @@ else:
         text = ''.join([value['letter'] for key, value in item.items() if key not in non_letter_keys])
         text_list = [value for key, value in item.items() if key not in non_letter_keys]
         
-        with st.expander('#' +  str(item_index + 1)  + ' - Mot : ' + text, expanded = True if item_index== 0 else False):
+        with st.expander('#' +  str(item_index + 1)  + ' - Mot : ' + text + ' - Prix : ' + str(item['price']) + ' €', expanded = True ):
             
             
             cols = st.columns(len(text_list), gap='small')
             for letter_index, col in enumerate(cols):
                 with col:  
-                    st.image(text_list[letter_index]['letter_photo_path'], use_column_width='auto')
-            
-            
-            
+                    url = text_list[letter_index]['letter_photo_path']
+                    if url: 
+                        if item['number_photos'] > 2:
+                            st.image(text_list[letter_index]['letter_photo_path'], use_column_width='auto')
+                        else:
+                            st.image(text_list[letter_index]['letter_photo_path'], width=200)
+                    else:
+                        st.write('')
+            if st.button('❌ Supprimer du panier', key=str(item_index) + "_delete_" + text):
+                del basket[item_index]
+                save_basket(basket, item_index)
+                
             if 'frame' in item.keys():
                 frame = item['frame']
             else:
                 frame = 'Sans cadre'
-            basket[item_index]['frame'] =  st.radio('Option: Cadre', frames.keys(), index=list(frames.keys()).index(frame), on_change=save_basket, kwargs={'basket': basket, 'item_index': item_index}, key=str(item_index) + "_radio_" + text)
+            available_frames = {key: value for key, value in frames.items() if item['number_photos'] >= value['min'] and item['number_photos'] <= value['max'] and item['number_photos'] not in value['unavailable_sizes'] }
+            if item['text_len'] > 10:
+                st.info('Votre mot fait plus de 10 photos. Contactez-moi pour un devis de cadre ou de sous-verre sur mesure')
+            elif item['text_len'] < 3 or item['text_len'] in [7,8]:
+                st.info("L'option de cadre en bois n'est pas disponible pour un mot de moins de cette taille.")
+            frame =  st.radio('Option: Cadre', available_frames.keys(), index=list(available_frames.keys()).index(frame), key=str(item_index) + "_radio_" + text)
             
-            if st.button('✨ Prévisualiser avec le cadre en qualité maximale'):
+            if 'frame' not in item.keys() or frame != cookie_manager.get(cookie='basket')[item_index]['frame']:
+                save_basket(basket, item_index, 'frame', frame)
+            
+            if st.button('✨ Prévisualiser avec le cadre en qualité maximale', key=str(item_index) + "_preview_" + text):
                 st.write('Mum envoie moi les cadres please!')
             
             if 'quantity' in item.keys():
@@ -103,11 +143,12 @@ else:
             else:
                 quantity = 1
                 
-            basket[item_index]['quantity'] = int(st.number_input('Quantité:',min_value=1, value=quantity, key=str(item_index) + "_quantity_" + text, on_change=save_basket, kwargs={'basket': basket, 'item_index': item_index}))
+            quantity = int(st.number_input('Quantité:',min_value=1, value=quantity, key=str(item_index) + "_quantity_" + text))
+            if 'quantity' not in item.keys() or quantity != cookie_manager.get(cookie='basket')[item_index]['quantity']:
+                save_basket(basket, item_index, 'quantity', quantity)
             
-            if st.button('❌ Supprimer du panier', key=str(item_index) + "_delete_" + text):
-                del basket[item_index]
-                save_basket(basket, item_index)
+                        
+            
                 
 
 
