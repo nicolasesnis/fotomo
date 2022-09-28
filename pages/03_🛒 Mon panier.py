@@ -96,7 +96,7 @@ else:
     
     with col2:
         if st.button('Valider le panier ✅ '):
-            st.success('Success')
+            st.success('feature pas encore dispo')
     
     for item_index, item in enumerate(basket):
         

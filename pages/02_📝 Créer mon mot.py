@@ -139,7 +139,7 @@ if 'text_dict' in st.session_state:
                 item['text'] = text
                 item['text_len'] = len(text)
                 basket.append(st.session_state['text_dict'])
-                st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://share.streamlit.io)'
+                st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/Mon_panier)'
                 cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key='basket')            
             else:   
                 st.session_state['atc_message'] = 'Cette combinaison de photos est déjà dans votre panier.'

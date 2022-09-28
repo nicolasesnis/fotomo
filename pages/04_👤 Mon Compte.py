@@ -91,7 +91,9 @@ else: # User is logged in
     with col2:
         for key, value in user_cookie.items():
             st.write(key + ": " + value)
-    if user_cookie['email'] == 'nicolas.esnis@gmail.com':
+    if user_cookie['email'] in ['nicolas.esnis@gmail.com', 'valerie.esnis@fotomo.fr']:
+        if user_cookie['email'] == 'valerie.esnis@fotomo.fr':
+            st.write('Bonjour chère mère')
         def sync_photos():
             private = [i['Key'] for i in list_bucket('s3://fotomo/')]
             public = [i['Key'] for i in list_bucket('s3://low-resolution-images/')]
