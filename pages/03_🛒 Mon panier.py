@@ -1,9 +1,8 @@
 import streamlit as st
-import numpy as np
 import extra_streamlit_components as stx
 import datetime
 from PIL import Image 
-import urllib.request
+import json
 import urllib.parse
 
 Image.MAX_IMAGE_PIXELS = 10000000000
@@ -40,30 +39,8 @@ def save_basket(basket, item_index, key=None, value=None):
         basket[item_index][key] = value
     cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key=str(item_index) + '_' + text + '_' + str(key))            
 
-
-frames = {
-        'Sans cadre': {
-            'min': 0,
-            'max': 999,
-            'unit_price': 0,
-            'unavailable_sizes': []
-            }, 
-        'Sous verre, clipsé': {
-            'min': 0,
-            'unit_price': 3,
-            'max': 10,
-            'unavailable_sizes': []
-            },
-        'Cadre en bois, couleur noire': {
-            3: 28, 
-            4: 35, 
-            5: 42, 
-            6: 65, 
-            9: 97, 
-            'max': 10, 
-            'min': 3, 
-            'unavailable_sizes': [7,8]},
-    }
+with open('frames.json', 'r') as f:
+    frames = json.load(f)
     
 
 
@@ -125,11 +102,11 @@ else:
                 frame = item['frame']
             else:
                 frame = 'Sans cadre'
-            available_frames = {key: value for key, value in frames.items() if item['number_photos'] >= value['min'] and item['number_photos'] <= value['max'] and item['number_photos'] not in value['unavailable_sizes'] }
+            available_frames = {key: value for key, value in frames.items() if item['number_photos'] >= value['min'] and item['number_photos'] <= value['max'] and item['text_len'] not in value['unavailable_sizes'] }
             if item['text_len'] > 10:
                 st.info('Votre mot fait plus de 10 photos. Contactez-moi pour un devis de cadre ou de sous-verre sur mesure')
             elif item['text_len'] < 3 or item['text_len'] in [7,8]:
-                st.info("L'option de cadre en bois n'est pas disponible pour un mot de moins de cette taille.")
+                st.info("L'option de cadre en bois n'est pas disponible pour un mot de moins 3 lettres.")
             frame =  st.radio('Option: Cadre', available_frames.keys(), index=list(available_frames.keys()).index(frame), key=str(item_index) + "_radio_" + text)
             
             if 'frame' not in item.keys() or frame != cookie_manager.get(cookie='basket')[item_index]['frame']:

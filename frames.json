@@ -1,0 +1,24 @@
+{
+  "Sans cadre": {
+    "min": 0,
+    "max": 999,
+    "unit_price": 0,
+    "unavailable_sizes": []
+  },
+  "Sous verre, clipsé": {
+    "min": 0,
+    "unit_price": 3,
+    "max": 10,
+    "unavailable_sizes": []
+  },
+  "Cadre en bois, couleur noire": {
+    "3": 28,
+    "4": 35,
+    "5": 42,
+    "6": 65,
+    "9": 97,
+    "max": 10,
+    "min": 3,
+    "unavailable_sizes": [7, 8]
+  }
+}
