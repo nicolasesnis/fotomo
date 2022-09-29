@@ -1,45 +1,11 @@
-<script>
-  var browser = (function () {
-    var test = function (regexp) {
-      return regexp.test(window.navigator.userAgent);
-    };
-    switch (true) {
-      case test(/edg/i):
-        return "Microsoft Edge";
-      case test(/trident/i):
-        return "Microsoft Internet Explorer";
-      case test(/firefox|fxios/i):
-        return "Mozilla Firefox";
-      case test(/opr\//i):
-        return "Opera";
-      case test(/ucbrowser/i):
-        return "UC Browser";
-      case test(/samsungbrowser/i):
-        return "Samsung Browser";
-      case test(/chrome|chromium|crios/i):
-        return "Google Chrome";
-      case test(/safari/i):
-        return "Apple Safari";
-      default:
-        return "Other";
-    }
-  })();
-
-  if (browser == "Apple Safari") {
-    window.location.replace(
-      "https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/"
-    );
-  } else {
-    window.location.replace(
-      "https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/"
-    );
-  }
-</script>
-
 <!DOCTYPE html>
 <html>
   <head>
     <title>Fotomo</title>
+    <meta
+      name="description"
+      content="Fotomo, les mots en photo. Mes lettres sont à votre disposition pour écrire le mot de votre choix et l’offrir à ceux que vous aimez."
+    />
     <style type="text/css">
       html {
         overflow: auto;
@@ -54,23 +20,46 @@
         border: none;
       }
       iframe {
-        display: block;
         width: 100%;
-        border: none;
-        overflow-y: auto;
-        overflow-x: hidden;
       }
     </style>
+    <script>
+      var browser = (function () {
+        var test = function (regexp) {
+          return regexp.test(window.navigator.userAgent);
+        };
+        switch (true) {
+          case test(/edg/i):
+            return "Microsoft Edge";
+          case test(/trident/i):
+            return "Microsoft Internet Explorer";
+          case test(/firefox|fxios/i):
+            return "Mozilla Firefox";
+          case test(/opr\//i):
+            return "Opera";
+          case test(/ucbrowser/i):
+            return "UC Browser";
+          case test(/samsungbrowser/i):
+            return "Samsung Browser";
+          case test(/chrome|chromium|crios/i):
+            return "Google Chrome";
+          case test(/safari/i):
+            return "Apple Safari";
+          default:
+            return "Other";
+        }
+      })();
+
+      if (browser == "Apple Safari") {
+        window.location.replace(
+          "https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/"
+        );
+      }
+    </script>
   </head>
   <body>
     <iframe
-      src="https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/?embed=true"
-      frameborder="0"
-      marginheight="0"
-      marginwidth="0"
-      width="100%"
-      height="100%"
-      scrolling="auto"
+      src="https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/?embedded=true"
     >
     </iframe>
   </body>
