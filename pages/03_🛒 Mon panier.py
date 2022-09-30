@@ -3,17 +3,11 @@ import extra_streamlit_components as stx
 import datetime
 from PIL import Image 
 import json
-import urllib.parse
 
 Image.MAX_IMAGE_PIXELS = 10000000000
 
-# from io import BytesIO
-
-
 st.set_page_config(
-	# layout = "centered",
     layout = "wide",
-	initial_sidebar_state = "collapsed",
 	page_title = "Mon panier",
     page_icon = "📷"
 )

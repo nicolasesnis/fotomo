@@ -1,19 +1,22 @@
 import streamlit as st
 import os, json
 from src.s3.list_photos import list_bucket
-from src.utils import set_bg_hack , sidebar_bg_color, cta_button, sidebar_bg
-
-
+from src.styles.utils import cta_button, sidebar_font_color, set_bg_pattern, hide_navbar
 
 st.set_page_config(
-	# layout = "centered",
     layout = "wide",
 	initial_sidebar_state = "collapsed",
 	page_title = "Fotomo.fr",
     page_icon = "📷"
 )
-set_bg_hack('src/background_images/img3.jpg')
+# set_bg_hack('src/background_images/wave-haikei.png')
 # sidebar_bg_color('rgb(252,239,224)')
+set_bg_pattern()
+# sidebar_font_color('#FFFFFF')
+# sidebar_bg_pattern()
+hide_navbar()
+
+st.write(st.get_option('theme.primaryColor'))
 
 if 'secrets.json' in os.listdir(): # localhost
       with open('secrets.json', 'r')  as f:
@@ -39,7 +42,7 @@ st.write('')
 st.write('')
 st.write('')
 st.markdown("""<p style='text-align: center; font-size: 1.2em; font-family: "Georgia", Times, serif;'>Mes lettres sont à votre disposition pour écrire le mot de votre choix et l’offrir à ceux que vous aimez.</p>""", unsafe_allow_html=True)
-cta_button("Créer mon mot")
+cta_button("Créer mon mot", '#F0FFFF')
 
 st.write('')
 st.subheader('*Galerie*')

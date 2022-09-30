@@ -6,10 +6,8 @@ import extra_streamlit_components as stx
 
 
 st.set_page_config(
-	# layout = "centered",
     layout = "wide",
-	initial_sidebar_state = "collapsed",
-	page_title = "Fotomo.fr",
+	page_title = "Créer mon mot",
     page_icon = "📷"
 )
 

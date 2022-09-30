@@ -10,9 +10,7 @@ from PIL import Image
 
 
 st.set_page_config(
-	# layout = "centered",
     layout = "wide",
-	initial_sidebar_state = "collapsed",
 	page_title = "Mon Compte",
     page_icon = "📷"
 )
