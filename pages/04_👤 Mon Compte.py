@@ -1,13 +1,12 @@
 import streamlit as st
 import extra_streamlit_components as stx
-from src.s3.read_file import download_s3_file
+from src.s3.read_file import download_s3_file, read_s3_df_file
 from src.s3.upload_file import upload_s3_file
 from src.s3.list_photos import list_bucket
-import pandas as pd
 import re
 import datetime, os
 from PIL import Image
-
+from src.cookies.utils import get_manager
 
 st.set_page_config(
     layout = "wide",
@@ -15,10 +14,6 @@ st.set_page_config(
     page_icon = "📷"
 )
 
-# Login
-@st.cache(allow_output_mutation=True)
-def get_manager():
-    return stx.CookieManager()
 
 cookie_manager = get_manager()
 
@@ -31,8 +26,7 @@ def end_session():
 
 
 if 'user_cookie' not in cookie_manager.get_all(): # User is not logged in
-    download_s3_file('s3://fotomo-secrets/website_users.csv', 'tmp')
-    all_users = pd.read_csv('tmp')
+    all_users = read_s3_df_file('s3://fotomo-secrets/website_users.csv')
     tab1, tab2 = st.tabs(["Client existant", "Nouveau Client"])
     
     # Existing User - Login Form
@@ -89,9 +83,13 @@ else: # User is logged in
     with col2:
         for key, value in user_cookie.items():
             st.write(key + ": " + value)
+            
+    # Admin
     if user_cookie['email'] in ['nicolas.esnis@gmail.com', 'valerie.esnis@fotomo.fr']:
+        
         if user_cookie['email'] == 'valerie.esnis@fotomo.fr':
             st.write('Bonjour chère mère')
+        
         def sync_photos():
             private = [i['Key'] for i in list_bucket('s3://fotomo/')]
             public = [i['Key'] for i in list_bucket('s3://low-resolution-images/')]
@@ -109,6 +107,7 @@ else: # User is logged in
                             image_file.save(img_name, quality= 100)
                         upload_s3_file(img_name, 's3://low-resolution-images/' + item)
                         os.remove(img_name)                    
+                        
         if st.button('Sync Photos'):
             sync_photos()
         

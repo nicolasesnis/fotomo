@@ -6,7 +6,6 @@ st.set_page_config(
     page_icon = "📷"
 )
 
-
 st.header('Photos')
 st.write('Les photos sont imprimées professionnellement en format 10 x 15 cm, finition brillante, sur papier Fujifilm épais (210 g/m2).\nDe plus grands formats (11x15cm ou 13x18 cm) peuvent être réalisés sur demande.')
 

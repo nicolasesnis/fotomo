@@ -2,8 +2,7 @@ import streamlit as st
 import datetime
 from src.s3.list_photos import list_bucket
 from random import randrange
-import extra_streamlit_components as stx
-
+from src.cookies.utils import get_manager
 
 st.set_page_config(
     layout = "wide",
@@ -11,16 +10,13 @@ st.set_page_config(
     page_icon = "📷"
 )
 
-@st.cache(allow_output_mutation=True)
-def get_manager():
-    return stx.CookieManager()
-
 cookie_manager = get_manager()
-
-
 
 @st.cache
 def load_letters():
+    """
+    Loads all the letter images from S3.
+    """
     all_albums = list_bucket('s3://low-resolution-images')
     letters = {}
     for photo in all_albums:
@@ -34,6 +30,9 @@ letters_photos = load_letters()
 
 
 def get_next_index(letter, text_dict):
+    """
+    Return the last available photo index, to avoid showing the same picture twice.
+    """
     global letters_photos
     used_indices = [text_dict[key]['index'] for key in text_dict.keys() if text_dict[key]['letter'] == letter]
     if max(used_indices) + 1 < len(letters_photos[letter].keys()):
@@ -57,13 +56,7 @@ def update_photo(letter, index):
             'letter_photo_name': letter,
             'letter_photo_path': None
         }
-        
-
-def func(text):
-    st.write(text)
     
-def set_allow_reset_text_dict():
-    st.session_state['allow_reset_text_dict'] = True
 
 st.info("📷 Pour protéger mes photos, les lettres s'affichent en moindre qualité. Passez commande de votre mot pour recevoir les photos imprimées professionnellement en format 10 x 15 cm, finition brillante, sur papier Fujifilm épais (210 g/m2).")
 st.info("🏷️ 5€ par photo (4,50 € si 10 photos ou plus sont sélectionnées)")
@@ -75,11 +68,20 @@ if text_dict:
 else:
     st.session_state['text_dict'] = {}
 
+def set_allow_reset_text_dict():
+    """ 
+    Allow the reset of the text dict. Avoids resetting the text_dict each time a single photo is edited.
+    """
+    st.session_state['allow_reset_text_dict'] = True
+
+
 initial_value = '' if 'text_dict' not in st.session_state else ''.join([value['letter'] for key, value in  st.session_state['text_dict'].items()])
 text = st.text_input('Entrez un mot ou une phrase...', value=initial_value,  on_change=set_allow_reset_text_dict)
 
-
-if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_reset_text_dict']:
+def set_text_dict():
+    """ 
+    Update the text_dict object with new input word
+    """
     text_dict = {}
     for letter_index, letter in enumerate(list(text)):
         letter = letter.upper()
@@ -102,7 +104,9 @@ if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_rese
         
     cookie_manager.set('text_dict', st.session_state['text_dict'], expires_at=datetime.datetime(year=2030, month=2, day=2), key='init_word')
 
-
+if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_reset_text_dict']:
+    set_text_dict()
+    
 if text != '' and 'text_dict' in st.session_state:
     cols = st.columns(len(list(text)), gap='small')
     for letter_index, col in enumerate(cols):
@@ -114,37 +118,26 @@ if text != '' and 'text_dict' in st.session_state:
                     index = get_next_index(letter, st.session_state['text_dict'])
                     st.session_state['text_dict'][letter_index].update(update_photo(letter, index))
                 image = st.session_state['text_dict'][letter_index]['letter_photo_path']
-                st.image(image, use_column_width='auto')
-                # header_html = '<img src="' + image + '" style="width: 50%; height: 50%"/>' 
-                # st.markdown(
-                #     header_html, unsafe_allow_html=True,
-                # )
-
-                
+                st.image(image, use_column_width='auto')                
             else:
                 st.write(letter)
 
-
-
 if 'text_dict' in st.session_state:
-    if not cookie_manager.get(cookie='user_token'):
-        def add_to_cart(item):
-            basket = cookie_manager.get(cookie='basket')
-            if basket is None:
-                basket = []
-            if item not in basket:
-                item['number_photos'] = len([value for key, value in item.items() if value['letter_photo_path'] is not None])
-                item['text'] = text
-                item['text_len'] = len(text)
-                basket.append(st.session_state['text_dict'])
-                st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/Mon_panier)'
-                cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key='basket')            
-            else:   
-                st.session_state['atc_message'] = 'Cette combinaison de photos est déjà dans votre panier.'
-            
-        if st.button('Ajouter au panier', disabled=text == ''):
-            add_to_cart(item = st.session_state['text_dict'])
-        if 'atc_message' in st.session_state:
-            st.success(st.session_state['atc_message'])
-    else:        
-        st.write('you are logged in')
+    def add_to_cart(item):
+        basket = cookie_manager.get(cookie='basket')
+        if basket is None:
+            basket = []
+        if item not in basket:
+            item['number_photos'] = len([value for key, value in item.items() if value['letter_photo_path'] is not None])
+            item['text'] = text
+            item['text_len'] = len(text)
+            basket.append(st.session_state['text_dict'])
+            st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/Mon_panier)'
+            cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key='basket')            
+        else:   
+            st.session_state['atc_message'] = 'Cette combinaison de photos est déjà dans votre panier.'
+        
+    if st.button('Ajouter au panier', disabled=text == ''):
+        add_to_cart(item = st.session_state['text_dict'])
+    if 'atc_message' in st.session_state:
+        st.success(st.session_state['atc_message'])

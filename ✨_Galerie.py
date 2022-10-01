@@ -9,21 +9,12 @@ st.set_page_config(
 	page_title = "Fotomo.fr",
     page_icon = "📷"
 )
-# set_bg_hack('src/background_images/wave-haikei.png')
-# sidebar_bg_color('rgb(252,239,224)')
+
 set_bg_pattern()
-# sidebar_font_color('#FFFFFF')
-# sidebar_bg_pattern()
 hide_navbar()
 
-st.write(st.get_option('theme.primaryColor'))
-
-if 'secrets.json' in os.listdir(): # localhost
-      with open('secrets.json', 'r')  as f:
-        secrets = json.load(f)
-else: # streamlit cloud
-      secrets = st.secrets
-  
+with open('src/styles/custom_theme.json', 'r')  as f:
+    custom_theme = json.load(f)
 
 
 st.info('🚧 Bienvenue sur Fotomo.fr! Le site est actuellement en cours de construction. Contactez-moi directement à valerie.esnis@fotomo.fr pour tout demande ou question.')
@@ -42,22 +33,64 @@ st.write('')
 st.write('')
 st.write('')
 st.markdown("""<p style='text-align: center; font-size: 1.2em; font-family: "Georgia", Times, serif;'>Mes lettres sont à votre disposition pour écrire le mot de votre choix et l’offrir à ceux que vous aimez.</p>""", unsafe_allow_html=True)
-cta_button("Créer mon mot", '#F0FFFF')
+cta_button("Créer mon mot", custom_theme['colorPaletteLightGreen'])
 
 st.write('')
 st.subheader('*Galerie*')
 
 galerie = list_bucket('s3://fotomo/Galerie')
-row_size = 3
-chunks = [galerie[x:x+row_size] for x in range(0, len(galerie), row_size)]
 
+st.markdown(
+    """
+    <style>
+    #photos {
+        line-height: 0;
+            -webkit-column-count: 2;
+            -webkit-column-gap:   3px;
+            -moz-column-count:    2;
+            -moz-column-gap:      3px;
+            column-count:         2;
+            column-gap:           3px;  
+        }
 
-for chunk in chunks:
-    cols = st.columns(row_size)
-    for col_index, col in enumerate(cols):
-        with col:
-            if col_index < len(chunk):
-                photo = chunk[col_index]
-                st.image('https://low-resolution-images.s3.amazonaws.com/' + photo['Key'],  caption=photo['Key'].split('/')[1].split('.')[0])
-        
-        
+    #photos img {
+        padding: 20px;
+        width: 100% !important;
+        height: auto !important;
+    }
+    @media (max-width: 1200px) {
+        #photos {
+            -moz-column-count:    2;
+            -webkit-column-count: 2;
+            column-count:         2;
+        }
+    }
+    @media (max-width: 1000px) {
+        #photos {
+            -moz-column-count:    2;
+            -webkit-column-count: 2;
+            column-count:         2;
+        }
+    }
+    @media (max-width: 800px) {
+        #photos {
+            -moz-column-count:    1;
+            -webkit-column-count: 1;
+            column-count:         1;
+        }
+    }
+    @media (max-width: 400px) {
+        #photos {
+            -moz-column-count:    1;
+            -webkit-column-count: 1;
+            column-count:         1;
+        }
+    }
+    </style>
+    <section id="photos">""" + ''.join([
+        "<img src = 'https://low-resolution-images.s3.amazonaws.com/" + photo['Key'] + "' alt= '" + photo['Key'].split('/')[1].split('.')[0] + "'/>" 
+        for photo in galerie]) + """
+    </section>
+    """,
+    unsafe_allow_html=True
+    )
