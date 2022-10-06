@@ -61,12 +61,12 @@ def update_photo(letter, index):
 st.info("📷 Pour protéger mes photos, les lettres s'affichent en moindre qualité. Passez commande de votre mot pour recevoir les photos imprimées professionnellement en format 10 x 15 cm, finition brillante, sur papier Fujifilm épais (210 g/m2).")
 st.info("🏷️ 5€ par photo (4,50 € si 10 photos ou plus sont sélectionnées)")
 
-text_dict = cookie_manager.get(cookie='text_dict')
+# text_dict = cookie_manager.get(cookie='text_dict')
 
-if text_dict:
-    st.session_state['text_dict'] = {int(key): value for key, value in text_dict.items() if type(key) != str}
-else:
-    st.session_state['text_dict'] = {}
+# if text_dict:
+#     st.session_state['text_dict'] = {int(key): value for key, value in text_dict.items() if type(key) != str}
+# else:
+#     st.session_state['text_dict'] = {}
 
 def set_allow_reset_text_dict():
     """ 
@@ -102,7 +102,7 @@ def set_text_dict():
         if  text_dict != {}:
             st.session_state['text_dict'] = text_dict
         
-    cookie_manager.set('text_dict', st.session_state['text_dict'], expires_at=datetime.datetime(year=2030, month=2, day=2), key='init_word')
+    # cookie_manager.set('text_dict', st.session_state['text_dict'], expires_at=datetime.datetime(year=2030, month=2, day=2), key='init_word')
 
 if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_reset_text_dict']:
     set_text_dict()
@@ -132,7 +132,7 @@ if 'text_dict' in st.session_state:
             item['text'] = text
             item['text_len'] = len(text)
             basket.append(st.session_state['text_dict'])
-            st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/Mon_panier)'
+            st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://fotomo.streamlitapp.com/Mon_panier)'
             cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key='basket')            
         else:   
             st.session_state['atc_message'] = 'Cette combinaison de photos est déjà dans votre panier.'

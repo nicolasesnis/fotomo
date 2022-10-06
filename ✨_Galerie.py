@@ -33,7 +33,7 @@ st.write('')
 st.write('')
 st.write('')
 st.markdown("""<p style='text-align: center; font-size: 1.2em; font-family: "Georgia", Times, serif;'>Mes lettres sont à votre disposition pour écrire le mot de votre choix et l’offrir à ceux que vous aimez.</p>""", unsafe_allow_html=True)
-cta_button("Créer mon mot", custom_theme['colorPaletteLightGreen'])
+cta_button("Créer mon mot", custom_theme['colorPaletteLightGreen'], 'https://fotomo.streamlitapp.com/Créer_mon_mot')
 
 st.write('')
 st.subheader('*Galerie*')

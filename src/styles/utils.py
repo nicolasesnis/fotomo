@@ -130,7 +130,7 @@ def sidebar_bg_pattern():
       )
    
    
-def cta_button(text, color):
+def cta_button(text, color, href):
     st.markdown("""
 <style type="text/css">
 .btn-1{
@@ -199,7 +199,7 @@ span {
 </style>
   
 <div class="btn-1">
-<a target=_self href='https://nicolasesnis-fotomo--galerie-ehy3aw.streamlitapp.com/Cr%C3%A9er_mon_mot' style='text-align: center' href=""><span >""" + text+ """</span></a>
+<a target=_self href='""" + href + """' style='text-align: center' href=""><span >""" + text+ """</span></a>
 </div>
 
     """, unsafe_allow_html=True)
