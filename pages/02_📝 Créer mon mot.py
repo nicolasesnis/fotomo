@@ -74,8 +74,7 @@ def set_allow_reset_text_dict():
     """
     st.session_state['allow_reset_text_dict'] = True
 
-
-initial_value = '' if 'text_dict' not in st.session_state else ''.join([value['letter'] for key, value in  st.session_state['text_dict'].items()])
+initial_value = '' if 'text_dict' not in st.session_state else ''.join([value['letter'] for key, value in  st.session_state['text_dict'].items() if type(value) == dict])
 text = st.text_input('Entrez un mot ou une phrase...', value=initial_value,  on_change=set_allow_reset_text_dict)
 
 def set_text_dict():

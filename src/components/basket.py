@@ -1,7 +1,10 @@
 import streamlit as st
 import extra_streamlit_components as stx
 import datetime
-from PIL import Image 
+from PIL import Image ,ImageOps
+import requests
+from io import BytesIO
+from src.s3.read_file import create_presigned_url
 import json
 
 
@@ -98,18 +101,42 @@ def show_basket():
                     frame = item['frame']
                 else:
                     frame = 'Sans cadre'
+                
                 available_frames = {key: value for key, value in frames.items() if item['number_photos'] >= value['min'] and item['number_photos'] <= value['max'] and item['text_len'] not in value['unavailable_sizes'] }
                 if item['text_len'] > 10:
                     st.info('Votre mot fait plus de 10 photos. Contactez-moi pour un devis de cadre ou de sous-verre sur mesure')
-                elif item['text_len'] < 3 or item['text_len'] in [7,8]:
+                elif item['text_len'] < 3:
                     st.info("L'option de cadre en bois n'est pas disponible pour un mot de moins 3 lettres.")
                 frame =  st.radio('Option: Cadre', available_frames.keys(), index=list(available_frames.keys()).index(frame), key=str(item_index) + "_radio_" + text)
                 
                 if 'frame' not in item.keys() or frame != cookie_manager.get(cookie='basket')[item_index]['frame']:
                     save_basket(basket, item_index, 'frame', frame)
                 
-                if st.button('✨ Prévisualiser avec le cadre en qualité maximale', key=str(item_index) + "_preview_" + text):
-                    st.write('Mum envoie moi les cadres please!')
+                if 'bois' in frame and st.button('✨ Prévisualiser avec le cadre en qualité maximale', key=str(item_index) + "_preview_" + text):
+                    
+                    def preview_with_frame():       
+                        bucket_name = 'fotomo'
+                        urls = [create_presigned_url('fotomo', '/'.join(url.split('/')[3:])) for url in [l['letter_photo_path'] for l in text_list]]
+                        images = [Image.open(BytesIO(requests.get(url).content)) for url in urls]
+                        widths, heights = zip(*(i.size for i in images))
+                        
+                        interval = 300
+                        total_width = sum(widths) + interval * (len(text_list) - 1)
+                        max_height = max(heights)
+                        background_color = 'rgb(225,225,225)'
+                        frame_color = 'rgb(0,0,0)'
+                        new_im = Image.new('RGB', (total_width, max_height), color=background_color)
+                        x_offset = 0
+                        for im in images:
+                            new_im.paste(im, (x_offset, 0))
+                            x_offset += interval + im.size[0]
+                        with_background = ImageOps.expand(new_im,border=300,fill=background_color)
+                        with_frame = ImageOps.expand(with_background,border=500,fill=frame_color)
+
+                        return with_frame
+                        
+                    img = preview_with_frame()
+                    st.image(img)
                 
                 if 'quantity' in item.keys():
                     quantity = item['quantity']

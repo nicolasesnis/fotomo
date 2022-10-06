@@ -3,6 +3,7 @@ import extra_streamlit_components as stx
 from src.s3.read_file import download_s3_file, read_s3_df_file
 from src.s3.upload_file import upload_s3_file
 from src.s3.list_photos import list_bucket
+from src.email.utils import send_email
 import re
 import datetime, os
 from PIL import Image
@@ -72,6 +73,7 @@ if 'user_cookie' not in cookie_manager.get_all(): # User is not logged in
                         'password': password
                     }
                 st.success('Vous êtes connecté !')
+                send_email(['valerie.esnis@fotomo.fr', 'nicolas.esnis@gmail.com'], 'Nouvel utilisateur sur Fotomo.fr', str(user))
                 start_session(user)
                 
 else: # User is logged in
