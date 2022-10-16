@@ -61,13 +61,6 @@ def update_photo(letter, index):
 st.info("📷 Pour protéger mes photos, les lettres s'affichent en moindre qualité. Passez commande de votre mot pour recevoir les photos imprimées professionnellement en format 10 x 15 cm, finition brillante, sur papier Fujifilm épais (210 g/m2).")
 st.info("🏷️ 5€ par photo (4,50 € si 10 photos ou plus sont sélectionnées)")
 
-# text_dict = cookie_manager.get(cookie='text_dict')
-
-# if text_dict:
-#     st.session_state['text_dict'] = {int(key): value for key, value in text_dict.items() if type(key) != str}
-# else:
-#     st.session_state['text_dict'] = {}
-
 def set_allow_reset_text_dict():
     """ 
     Allow the reset of the text dict. Avoids resetting the text_dict each time a single photo is edited.
@@ -100,10 +93,8 @@ def set_text_dict():
         
         if  text_dict != {}:
             st.session_state['text_dict'] = text_dict
-        
-    # cookie_manager.set('text_dict', st.session_state['text_dict'], expires_at=datetime.datetime(year=2030, month=2, day=2), key='init_word')
 
-if 'allow_reset_text_dict' in st.session_state and  st.session_state['allow_reset_text_dict']:
+if 'allow_reset_text_dict' in st.session_state and st.session_state['allow_reset_text_dict']:
     set_text_dict()
     
 if text != '' and 'text_dict' in st.session_state:
@@ -121,22 +112,24 @@ if text != '' and 'text_dict' in st.session_state:
             else:
                 st.write(letter)
 
-if 'text_dict' in st.session_state:
+    basket = cookie_manager.get('basket')
+    st.session_state['basket'] = basket if basket else []
+    
     def add_to_cart(item):
-        basket = cookie_manager.get(cookie='basket')
-        if basket is None:
-            basket = []
-        if item not in basket:
+        id = '_'.join([value['letter_photo_path'] for key, value in item.items()])
+        if len([item for item in st.session_state['basket'] if ('id' in item and item['id'] == id)]) == 0:
             item['number_photos'] = len([value for key, value in item.items() if value['letter_photo_path'] is not None])
             item['text'] = text
             item['text_len'] = len(text)
-            basket.append(st.session_state['text_dict'])
+            item['id'] = id
+            st.session_state['basket'].append(st.session_state['text_dict'])
             st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://fotomo.streamlitapp.com/Mon_panier)'
-            cookie_manager.set('basket', basket, expires_at=datetime.datetime(year=2030, month=2, day=2), key='basket')            
-        else:   
+            cookie_manager.set('basket', st.session_state['basket'], expires_at=datetime.datetime(year=2030, month=2, day=2), key='basket')            
+        else:
             st.session_state['atc_message'] = 'Cette combinaison de photos est déjà dans votre panier.'
-        
-    if st.button('Ajouter au panier', disabled=text == ''):
+    
+    if st.button('Ajouter au panier', disabled=text == ''):    
         add_to_cart(item = st.session_state['text_dict'])
+        
     if 'atc_message' in st.session_state:
         st.success(st.session_state['atc_message'])
