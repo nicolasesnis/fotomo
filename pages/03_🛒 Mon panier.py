@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit.components.v1 import html
 from src.components.basket import show_basket
 from src.cookies.utils import get_manager
 
@@ -43,12 +44,12 @@ else:
                 register()
         else:
             st.write('Goo!')
-            st.markdown("""            
+            html("""            
                 <script type="text/javascript">
                     function onVisaCheckoutReady() {
                         V.init({
                         apikey: '""" + st.secrets['visa_api_key'] + """',
-                            encryptionKey: '""" + st.secrets['visa_encryption_key'] + """',
+                        encryptionKey: '""" + st.secrets['visa_encryption_key'] + """',
                         paymentRequest: {
                             currencyCode: "USD",
                             subtotal: "1.00",
@@ -65,10 +66,15 @@ else:
                         alert(JSON.stringify(error));
                     });
                 </script>
-                <img alt="Visa Checkout" class="v-button" role="button" src="https://sandbox.secure.checkout.visa.com/wallet-services-web/xo/button.png"/>
-                <script 
+                <img
+                    alt="Visa Checkout"
+                    class="v-button"
+                    role="button"
+                    src="https://sandbox.secure.checkout.visa.com/wallet-services-web/xo/button.png"
+                />
+                <script
                     type="text/javascript"
-                    src="https://sandbox-assets.secure.checkout.visa.com/checkout-widget/resources/js/integration/v1/sdk.js">
-                </script>
-            """.replace("'", '"'), unsafe_allow_html=True)
+                    src="https://sandbox-assets.secure.checkout.visa.com/checkout-widget/resources/js/integration/v1/sdk.js"
+                ></script>
+            """)
     
