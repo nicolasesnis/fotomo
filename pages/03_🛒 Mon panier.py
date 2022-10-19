@@ -51,7 +51,5 @@ else:
         else:
             
             out = create_checkout_session(client_email=cookies['user_cookie']['email'], basket=basket)
-            webbrowser.open(out)
-
-            
-            # st.markdown('<a href="' + out + '" target="_blank">Payer avec Stripe</a>', unsafe_allow_html=True)
+            with col2:
+                st.markdown('<a href="' + out + '" target="_blank">Payer avec Stripe (nouvelle fenêtre)</a>', unsafe_allow_html=True)
