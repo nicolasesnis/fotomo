@@ -13,9 +13,9 @@ def save_new_order(basket, email):
     basket['price'] = sum([value['price'] for key, value in basket.items()])
     basket.update({
         'email': email,
-        'purchase_time': str(pd.to_datetime('now')),
+        'purchase_time': str(pd.to_datetime('now', utc=True)),
         'payment_confirmed': False,
-        'id': email + '_'   + str(pd.to_datetime('now')),
+        'id': email + '_'   + str(pd.to_datetime('now', utc=True)),
     })
     with open(basket['id'] + '.json', 'w') as f:
         json.dump(basket, f, indent=4)
