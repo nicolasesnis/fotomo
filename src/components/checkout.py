@@ -6,7 +6,7 @@ from src.stripe.utils import load_product_prices
 
 # This is your test secret API key.
 
-def create_checkout_session(client_email, basket=None): 
+def create_checkout_session(client_email, order_id, basket=None): 
     try:
         if basket:
             products, prices = load_product_prices()
@@ -27,17 +27,17 @@ def create_checkout_session(client_email, basket=None):
                     frame_id = [p['id'] for p in products if p['name'] == item['frame']]
                     frame_price  = [p['id'] for p in prices if p['product'] == frame_id[0]][0] 
                     line_items.append({'price': frame_price, 'quantity': item['quantity']})
-            for item in line_items:
-                item['adjustable_quantity'] = {'enabled': True}
+            # for item in line_items:
+            #     item['adjustable_quantity'] = {'enabled': True}
         else: # test
             line_items= [{'price': 'price_1LuPgHGY9GmA5aoItriIcZEZ', 'quantity': 1}]
 
         checkout_session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
-            success_url='https://fotomo.streamlitapp.com/Mon_Compte',
+            success_url='https://fotomo.streamlitapp.com/Mon_Compte?order_id=' + order_id,
             cancel_url='https://fotomo.streamlitapp.com/Mon_panier',
-            # metadata =metadata,
+            metadata = {'order_id': order_id},
             client_reference_id = client_email,
             billing_address_collection='required',
             shipping_address_collection={'allowed_countries': ['FR']},

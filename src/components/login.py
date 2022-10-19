@@ -21,7 +21,7 @@ def start_session(user):
 def login():
     form = st.form("login_form")
     email = form.text_input('Adresse Email')
-    password = form.text_input('Mot de passe')
+    password = form.text_input('Mot de passe', type='password')
     submitted = form.form_submit_button("Se Connecter")
     if submitted:
         user = all_users[(all_users.email == email) & (all_users.password == password)]
@@ -36,7 +36,7 @@ def register():
     name = form.text_input('Prénom')
     surname = form.text_input('Nom de famille')
     email = form.text_input('Adresse Email')
-    password = form.text_input('Mot de passe')
+    password = form.text_input('Mot de passe' , type='password')
     submitted = form.form_submit_button("S'inscrire")
     if submitted:
         if email in all_users.email.unique():

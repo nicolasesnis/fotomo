@@ -1,9 +1,10 @@
 import boto3
+import json
 from botocore.client import Config
 from awscli.customizations.s3.utils import split_s3_bucket_key
 import streamlit as st 
 import pandas as pd
-from io import StringIO
+
 
 
 s3 = boto3.client('s3', 
@@ -36,6 +37,15 @@ def read_s3_df_file(url, s3=s3_resource):
     except Exception as e:
         return e
 
+
+def read_s3_json_file(url, s3=s3_resource):
+    bucket_name, prefix = split_s3_bucket_key(url)
+    try:
+        l = s3.Object(bucket_name, prefix).get()['Body'].read().decode()
+        d = json.loads(l)
+        return d
+    except Exception as e:
+        return e
 
 
 def create_presigned_url(bucket_name, object_name, expiration=3600, s3_client=s3):    
