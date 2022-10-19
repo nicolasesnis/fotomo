@@ -5,38 +5,38 @@ from PIL import Image ,ImageOps
 import requests
 from io import BytesIO
 from src.s3.read_file import create_presigned_url
-import json
-Image.MAX_IMAGE_PIXELS = 10000000000
+from src.stripe.utils import get_product_price, load_product_prices
 
+Image.MAX_IMAGE_PIXELS = 10000000000
 
 @st.cache(allow_output_mutation=True)
 def get_manager():
     return stx.CookieManager()
 
-def save_basket(basket, item_index, cookie_manager, text, key=None, value=None):
-    if key and value:
-        basket[item_index][key] = value
+def save_basket(basket, item_index, cookie_manager, text, new = None):
+    if new:
+        for key, value in new.items():
+            basket[item_index][key] = value
     cookie_manager.set('basket', 
                        basket, 
                        expires_at=datetime.datetime(year=2030, month=2, day=2), 
                        key=str(item_index) + '_' + text + '_' + str(key))            
     return basket
 
-def get_prices(basket, frames):
+
+    
+def get_prices(basket):
     for item_index, item in enumerate(basket):
         if item['number_photos'] < 10:
-            basket[item_index]['price'] = 5  * item['number_photos']
+            basket[item_index]['price'] = get_product_price({'type': 'photo', 'pricing': 'regular'})  * item['number_photos']
         else:
-            basket[item_index]['price'] = 4.5  * item['number_photos']
-        for key, value in item.items():    
-            if key == 'frame':
-                if 'unit_price' in frames[value].keys():
-                    basket[item_index]['price'] += frames[value]['unit_price'] * item['number_photos']
-                else:
-                    basket[item_index]['price'] += frames[value][str(item['text_len'])]
-                    
-            if key == 'quantity':
-                basket[item_index]['price'] = basket[item_index]['price'] * basket[item_index]['quantity']
+            basket[item_index]['price'] = get_product_price({'type': 'photo', 'pricing': 'discount'})  * item['number_photos']
+        if 'frame_price' in item:
+            basket[item_index]['price'] += item['frame_price']
+        if 'quantity' in item:
+            basket[item_index]['price'] = item['price'] * item['quantity']
+        
+
 
 def preview_with_frame(text_list):       
     urls = [create_presigned_url('fotomo', '/'.join(url.split('/')[3:])) for url in [l['letter_photo_path'] for l in text_list]]
@@ -58,18 +58,21 @@ def preview_with_frame(text_list):
 
     return with_frame
 
+def get_frames():
+    products, prices  = load_product_prices()
+    frames = [p for p in products if 'type' in p['metadata'] and p['metadata']['type'] == 'frame']
+    frames = [{'name': p['name'], 'number_photos': int(p['metadata']['number_photos']), 'description': p['description'], 'id': p['id'], 'image': p['images'][0]} for p in frames]
+    for f in frames:
+        f['price'] = [p['unit_amount'] for p in prices if p['product'] == f['id']][0] / 100
+    frames.append({'name': 'Sans Cadre', 'description': '', 'number_photos': 999, 'price': 0, 'image': ''}) 
+    return  frames
+
 def show_basket(basket):
     
-    non_letter_keys = ['quantity', 'frame', 'price', 'text', 'number_photos', 'text_len', 'id']
-    
+    non_letter_keys = ['quantity', 'frame', 'price', 'text', 'number_photos', 'text_len', 'id', 'frame_price']
     cookie_manager = get_manager()
-    
-    with open('frames.json', 'r') as f:
-        frames = json.load(f)
-    
-    get_prices(basket, frames)
-    
-    
+    frames = get_frames()
+    get_prices(basket)
     
     st.write('Sous-total avant les frais de livraison : __' +  str(sum([item['price'] for item in basket])) + '__ €')
     
@@ -94,34 +97,52 @@ def show_basket(basket):
             if st.button('❌ Supprimer du panier', key=str(item_index) + "_delete_" + text):
                 del basket[item_index]
                 basket = save_basket(basket=basket, item_index=item_index, cookie_manager=cookie_manager, text=text)
-                
+            
+            available_frames = [frame for frame in frames if item['number_photos'] == frame['number_photos'] or frame['number_photos'] == 999 ]
+            
             if 'frame' in item.keys():
                 frame = item['frame']
             else:
-                frame = 'Sans cadre'
+                frame = available_frames[0]['name']
             
-            available_frames = {key: value for key, value in frames.items() if item['number_photos'] >= value['min'] and item['number_photos'] <= value['max'] and item['text_len'] not in value['unavailable_sizes'] }
             if item['text_len'] > 10:
                 st.info('Votre mot fait plus de 10 photos. Contactez-moi pour un devis de cadre ou de sous-verre sur mesure')
             elif item['text_len'] < 3:
                 st.info("L'option de cadre en bois n'est pas disponible pour un mot de moins 3 lettres.")
-            frame =  st.radio('Option: Cadre', available_frames.keys(), index=list(available_frames.keys()).index(frame), key=str(item_index) + "_radio_" + text)
+            if len(available_frames) == 0:
+                st.info('Pas de cadre disponible pour les photos choisies. Contactez-moi pour un devis de cadre ou de sous-verre sur mesure.')
             
-            if 'frame' not in item.keys() or (item_index in basket and frame != basket[item_index]['frame']):
-                basket = save_basket(basket=basket, item_index=item_index, cookie_manager=cookie_manager, text=text, key='frame', value=frame)
+            
+            col1, col2, col3 = st.columns([4,2,5])
+            with col1:
+                frame =  st.selectbox('Option: Cadre', [f['name'] + ' (+ ' + str(f['price']) + ' €)' for f in available_frames], index=[f['name'] for f in available_frames].index(frame), key=str(item_index) + "_radio_" + text)
+                frame = frame.split(' (')[0] # remove price
+                if frame != 'Sans Cadre':
+                    st.info([f['description'] for f in frames if f['name'] == frame][0])
+            with col2:
+                if frame != 'Sans Cadre':
+                    st.image([f['image'] for f in frames if f['name'] == frame][0])
             
             if 'bois' in frame and st.button('✨ Prévisualiser avec le cadre en qualité maximale', key=str(item_index) + "_preview_" + text):
                 img = preview_with_frame(text_list)
                 st.image(img)
             
+            if 'frame' not in item.keys() or (frame != item['frame']):
+                basket = save_basket(basket=basket, item_index=item_index, cookie_manager=cookie_manager, text=text, new={
+                    'frame_price':[f['price'] for f in available_frames if f['name'] == frame][0],
+                    'frame':frame
+                    })
+                
             if 'quantity' in item.keys():
                 quantity = item['quantity']
             else:
                 quantity = 1
-                
             quantity = int(st.number_input('Quantité:',min_value=1, value=quantity, key=str(item_index) + "_quantity_" + text))
-            if 'quantity' not in item.keys() or (item_index in basket and quantity != basket[item_index]['quantity']):
-                basket = save_basket(basket=basket, item_index=item_index, cookie_manager=cookie_manager, text=text, key='quantity', value=quantity)
+            if 'quantity' not in item.keys() or (quantity != item['quantity']):
+                basket = save_basket(basket=basket, item_index=item_index, cookie_manager=cookie_manager, text=text, new={'quantity': quantity})
+            
+            
+                
             
                         
             

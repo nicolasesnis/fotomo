@@ -2,6 +2,9 @@ import streamlit as st
 from streamlit.components.v1 import html
 from src.components.basket import show_basket
 from src.cookies.utils import get_manager
+from src.components.checkout import create_checkout_session
+
+
 
 st.set_page_config(
         layout = "wide",
@@ -10,6 +13,8 @@ st.set_page_config(
     )
 
 from src.components.login import login, register
+
+
 
 cookie_manager = get_manager()
 
@@ -43,38 +48,9 @@ else:
             with tab2:
                 register()
         else:
-            st.write('Goo!')
-            html("""            
-                <script type="text/javascript">
-                    function onVisaCheckoutReady() {
-                        V.init({
-                        apikey: '""" + st.secrets['visa_api_key'] + """',
-                        encryptionKey: '""" + st.secrets['visa_encryption_key'] + """',
-                        paymentRequest: {
-                            currencyCode: "USD",
-                            subtotal: "1.00",
-                        },
-                        });
-                    }
-                    V.on("payment.success", function (payment) {
-                        alert(JSON.stringify(payment));
-                    });
-                    V.on("payment.cancel", function (payment) {
-                        alert(JSON.stringify(payment));
-                    });
-                    V.on("payment.error", function (payment, error) {
-                        alert(JSON.stringify(error));
-                    });
-                </script>
-                <img
-                    alt="Visa Checkout"
-                    class="v-button"
-                    role="button"
-                    src="https://sandbox.secure.checkout.visa.com/wallet-services-web/xo/button.png"
-                />
-                <script
-                    type="text/javascript"
-                    src="https://sandbox-assets.secure.checkout.visa.com/checkout-widget/resources/js/integration/v1/sdk.js"
-                ></script>
-            """)
-    
+            out = create_checkout_session(client_email=cookies['user_cookie']['email'], basket=basket)
+            nav_script = """
+                <meta http-equiv="refresh" content="0; url='%s'">
+            """ % (out)
+            st.write(nav_script, unsafe_allow_html=True)
+            # st.markdown('<a href="' + out + '" target="_self">Checkout</a>', unsafe_allow_html=True)
