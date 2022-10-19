@@ -49,6 +49,6 @@ else:
                 register()
         else:
             order_id = save_new_order(basket, cookies['user_cookie']['email'])
-            out = create_checkout_session(client_email=cookies['user_cookie']['email'], basket=basket, order_id=order_id)
+            out = create_checkout_session(client_email=cookies['user_cookie']['email'], order_id=order_id, basket=basket)
             with col2:
                 st.markdown('<a href="' + out + '" target="_blank">Payer avec Stripe (nouvelle fenêtre)</a>', unsafe_allow_html=True)
