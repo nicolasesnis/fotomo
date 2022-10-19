@@ -49,4 +49,4 @@ else:
                 register()
         else:
             out = create_checkout_session(client_email=cookies['user_cookie']['email'], basket=basket)
-            st.markdown('<a href="' + out + '" target="_self">Payer avec Stripe</a>', unsafe_allow_html=True)
+            st.markdown('<a href="' + out + '" target="_blank">Payer avec Stripe</a>', unsafe_allow_html=True)
