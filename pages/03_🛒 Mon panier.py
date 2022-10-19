@@ -1,5 +1,4 @@
 import streamlit as st
-import webbrowser
 from streamlit.components.v1 import html
 from src.components.basket import show_basket
 from src.cookies.utils import get_manager
