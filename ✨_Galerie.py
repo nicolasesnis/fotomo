@@ -23,7 +23,7 @@ html("""
      """)
 
 set_bg_pattern()
-# hide_navbar()
+hide_navbar()
 
 with open('src/styles/custom_theme.json', 'r')  as f:
     custom_theme = json.load(f)
