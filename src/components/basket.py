@@ -20,7 +20,7 @@ def save_basket(basket, item_index, cookie_manager, text, new = None):
     cookie_manager.set('basket', 
                        basket, 
                        expires_at=datetime.datetime(year=2030, month=2, day=2), 
-                       key=str(item_index) + '_' + text + '_' + str(key))            
+                       key=str(item_index) + '_' + text + '_' + str(new))            
     return basket
 
 
@@ -98,7 +98,7 @@ def show_basket(basket):
                 del basket[item_index]
                 basket = save_basket(basket=basket, item_index=item_index, cookie_manager=cookie_manager, text=text)
             
-            available_frames = [frame for frame in frames if item['number_photos'] == frame['number_photos'] or frame['number_photos'] == 999 ]
+            available_frames = [frame for frame in frames if item['text_len'] == frame['number_photos'] or frame['number_photos'] == 999 ]
             
             if 'frame' in item.keys():
                 frame = item['frame']

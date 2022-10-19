@@ -116,7 +116,8 @@ if text != '' and 'text_dict' in st.session_state:
     st.session_state['basket'] = basket if basket else []
     
     def add_to_cart(item):
-        id = '_'.join([value['letter_photo_path'] for key, value in item.items()])
+        
+        id = '_'.join([value['letter_photo_path'] for key, value in item.items() if value['letter_photo_path'] is not None])
         if len([item for item in st.session_state['basket'] if ('id' in item and item['id'] == id)]) == 0:
             item['number_photos'] = len([value for key, value in item.items() if value['letter_photo_path'] is not None])
             item['text'] = text

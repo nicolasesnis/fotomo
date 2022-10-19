@@ -1,4 +1,5 @@
 import streamlit as st
+import webbrowser
 from streamlit.components.v1 import html
 from src.components.basket import show_basket
 from src.cookies.utils import get_manager
@@ -48,5 +49,9 @@ else:
             with tab2:
                 register()
         else:
+            
             out = create_checkout_session(client_email=cookies['user_cookie']['email'], basket=basket)
-            st.markdown('<a href="' + out + '" target="_blank">Payer avec Stripe</a>', unsafe_allow_html=True)
+            webbrowser.open(out)
+
+            
+            # st.markdown('<a href="' + out + '" target="_blank">Payer avec Stripe</a>', unsafe_allow_html=True)
