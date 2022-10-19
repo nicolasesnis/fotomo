@@ -1,3 +1,4 @@
 boto3==1.17.77
 awscli==1.19.77
 extra_streamlit_components
+stripe==4.2.0
