@@ -2,6 +2,8 @@ import streamlit as st
 import os, json
 from src.s3.list_photos import list_bucket
 from src.styles.utils import cta_button, sidebar_font_color, set_bg_pattern, hide_navbar
+from streamlit.components.v1 import html
+
 
 st.set_page_config(
     layout = "wide",
@@ -10,8 +12,18 @@ st.set_page_config(
     page_icon = "📷"
 )
 
+html("""
+     <script>
+        var meta = document.createElement('meta'); // is a node
+        meta.name = "description"
+        meta.content = "Fotomo, les mots en photo. Mes lettres sont à votre disposition pour écrire les mots de votre choix et les offrir à ceux que vous aimez.";
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        console.log(document.getElementsByTagName('head')[0])
+    </script>
+     """)
+
 set_bg_pattern()
-hide_navbar()
+# hide_navbar()
 
 with open('src/styles/custom_theme.json', 'r')  as f:
     custom_theme = json.load(f)
