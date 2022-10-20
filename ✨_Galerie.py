@@ -8,17 +8,19 @@ from streamlit.components.v1 import html
 st.set_page_config(
     layout = "wide",
 	initial_sidebar_state = "collapsed",
-	page_title = "Fotomo.fr",
+	page_title = "Fotomo, les mots en photo",
     page_icon = "📷"
 )
 
 html("""
      <script>
+        html = document.getElementsByTagName('html')[0]
+        html.lang = 'fr'
         var meta = document.createElement('meta'); // is a node
         meta.name = "description"
         meta.content = "Fotomo, les mots en photo. Mes lettres sont à votre disposition pour écrire les mots de votre choix et les offrir à ceux que vous aimez.";
         document.getElementsByTagName('head')[0].appendChild(meta);
-        console.log(document.getElementsByTagName('head')[0])
+        
     </script>
      """)
 
@@ -29,7 +31,7 @@ with open('src/styles/custom_theme.json', 'r')  as f:
     custom_theme = json.load(f)
 
 
-st.info('🚧 Bienvenue sur Fotomo.fr! Le site est actuellement en cours de construction. Contactez-moi directement à valerie.esnis@fotomo.fr pour tout demande ou question.')
+# st.info('🚧 Bienvenue sur Fotomo.fr! Le site est actuellement en cours de construction. Contactez-moi directement à valerie.esnis@fotomo.fr pour tout demande ou question.')
 
 with st.sidebar:
     

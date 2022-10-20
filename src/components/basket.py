@@ -6,6 +6,8 @@ import requests
 from io import BytesIO
 from src.s3.read_file import create_presigned_url
 from src.stripe.utils import get_product_price, load_product_prices
+import numpy as np
+
 
 Image.MAX_IMAGE_PIXELS = 10000000000
 
@@ -37,16 +39,32 @@ def get_prices(basket):
             basket[item_index]['price'] = item['price'] * item['quantity']
         
 
-
+@st.cache(ttl=60)
 def preview_with_frame(text_list):       
-    urls = [create_presigned_url('fotomo', '/'.join(url.split('/')[3:])) for url in [l['letter_photo_path'] for l in text_list]]
-    images = [Image.open(BytesIO(requests.get(url).content)) for url in urls]
+    background_color = 'rgb(225,225,225)'
+    
+    urls = []
+    for url in [l['letter_photo_path'] for l in text_list]:
+        if url:
+            url = create_presigned_url('fotomo', '/'.join(url.split('/')[3:]))
+        else:
+            url = None
+        urls.append(url)
+    images = []
+    for url in urls:
+        if url:
+            images.append(Image.open(BytesIO(requests.get(url).content)))
+        else:
+            last_size = images[-1].size
+            img = Image.new('RGB', (last_size[0],last_size[1]) , background_color) 
+            images.append(img)
+    
     widths, heights = zip(*(i.size for i in images))
     
     interval = 300
     total_width = sum(widths) + interval * (len(text_list) - 1)
     max_height = max(heights)
-    background_color = 'rgb(225,225,225)'
+    
     frame_color = 'rgb(0,0,0)'
     new_im = Image.new('RGB', (total_width, max_height), color=background_color)
     x_offset = 0

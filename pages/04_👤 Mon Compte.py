@@ -109,6 +109,9 @@ else: # User is logged in
                         cols = st.columns(item['text_len'], gap='small')
                         for letter_index, col in enumerate(cols):
                             with col:
-                                st.image(item[str(letter_index)]['letter_photo_path'])
+                                if item[str(letter_index)]['letter_photo_path']:
+                                    
+                                    st.image(item[str(letter_index)]['letter_photo_path'])
+                                
         
             
