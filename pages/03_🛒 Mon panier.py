@@ -29,15 +29,11 @@ if basket is None or len(basket) == 0:
     st.info('Votre panier est vide ! Dirigez-vous vers la section "Créer mon mot" pour effectuer une sélection.')
 else:
     
-    col1, col2 = st.columns([3,1])
-    with col1:
+    tab1, tab2 = st.tabs(["Mon Panier", "Valider mon panier (checkout)"])
+    with tab1:
         st.subheader('Il y  a ' + str(len(basket)) + ' sélection(s) dans votre panier')
-    with col2:
-        st.write('')
-        checkout = st.button('Valider le panier ✅ ')
-    if not checkout:
         show_basket(basket)
-    else:
+    with tab2:
         if 'user_cookie' not in cookies: # User is not logged in
             st.write('Veuillez créer un compte ou vous connecter afin de continuer.')
             tab1, tab2 = st.tabs(["Client existant", "Nouveau Client"])
@@ -50,5 +46,4 @@ else:
         else:
             order_id = save_new_order(basket, cookies['user_cookie']['email'])
             out = create_checkout_session(client_email=cookies['user_cookie']['email'], order_id=order_id, basket=basket)
-            with col2:
-                st.markdown('<a href="' + out + '" target="_blank">Payer avec Stripe (nouvelle fenêtre)</a>', unsafe_allow_html=True)
+            st.markdown('<a href="' + out + '" target="_blank">Payer avec Stripe (nouvelle fenêtre)</a>', unsafe_allow_html=True)
