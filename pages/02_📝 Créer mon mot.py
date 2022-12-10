@@ -124,7 +124,7 @@ if text != '' and 'text_dict' in st.session_state:
             item['text_len'] = len(text)
             item['id'] = id
             st.session_state['basket'].append(st.session_state['text_dict'])
-            st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://fotomo.streamlitapp.com/Mon_panier)'
+            st.session_state['atc_message'] = 'Les photos ont été ajoutées au panier - [Mon panier](https://fotomo.fr/Mon_panier)'
             cookie_manager.set('basket', st.session_state['basket'], expires_at=datetime.datetime(year=2030, month=2, day=2), key='basket')            
         else:
             st.session_state['atc_message'] = 'Cette combinaison de photos est déjà dans votre panier.'
