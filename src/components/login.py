@@ -1,8 +1,6 @@
 import streamlit as st
+import pandas as pd
 import extra_streamlit_components as stx
-from src.s3.read_file import download_s3_file, read_s3_df_file
-from src.s3.upload_file import upload_s3_file
-from src.s3.list_photos import list_bucket
 from src.email.utils import send_email
 import re
 import datetime, os
@@ -11,7 +9,7 @@ from src.cookies.utils import get_manager
 
 cookie_manager = get_manager()
 
-all_users = read_s3_df_file('s3://fotomo-secrets/website_users.csv')
+all_users = pd.read_csv('secrets/website_users.csv')
 
 def start_session(user):
     # for key, value in user.items():
@@ -49,8 +47,7 @@ def register():
             st.error('Mot de passe trop court.')
         else:
             all_users.loc[len(all_users.index)] = [name,	surname,	email,	password] 
-            all_users.to_csv('tmp', index=None)
-            upload_s3_file('tmp', 's3://fotomo-secrets/website_users.csv')
+            all_users.to_csv('secrets/website_users.csv', index=None)
             user = {
                     'name': name,
                     'surname': surname,	

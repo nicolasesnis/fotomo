@@ -1,0 +1,47 @@
+{
+    "item_0": {
+        "0": {
+            "letter": "L",
+            "index": 0,
+            "letter_photo_name": "L sable",
+            "letter_photo_path": "images/low-resolution-images/L/L sable.jpg"
+        },
+        "1": {
+            "letter": "A",
+            "index": 0,
+            "letter_photo_name": "A tabouret",
+            "letter_photo_path": "images/low-resolution-images/A/A tabouret.jpg"
+        },
+        "2": {
+            "letter": "J",
+            "index": 0,
+            "letter_photo_name": "J cable",
+            "letter_photo_path": "images/low-resolution-images/J/J cable.jpg"
+        },
+        "3": {
+            "letter": "S",
+            "index": 0,
+            "letter_photo_name": "S sol Sarlat",
+            "letter_photo_path": "images/low-resolution-images/S/S sol Sarlat.jpg"
+        },
+        "4": {
+            "letter": "D",
+            "index": 0,
+            "letter_photo_name": "D anneau2",
+            "letter_photo_path": "images/low-resolution-images/D/D anneau2.jpg"
+        },
+        "number_photos": 5,
+        "text": "LAJSD",
+        "text_len": 5,
+        "id": "images/low-resolution-images/L/L sable.jpg_images/low-resolution-images/A/A tabouret.jpg_images/low-resolution-images/J/J cable.jpg_images/low-resolution-images/S/S sol Sarlat.jpg_images/low-resolution-images/D/D anneau2.jpg",
+        "price": 25.0,
+        "frame_price": 3.0,
+        "frame": "Sous-verre",
+        "quantity": 1
+    },
+    "price": 25.0,
+    "email": "nicolas.esnis@gmail.com",
+    "purchase_time": "2022-12-21 16:55:32.828368+00:00",
+    "payment_confirmed": false,
+    "id": "nicolas.esnis@gmail.com_2022-12-21 16:55:32.828578+00:00"
+}

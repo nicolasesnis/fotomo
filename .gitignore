@@ -1,2 +1,4 @@
 .streamlit/secrets.toml
 test_visa.html
+secrets/
+images/

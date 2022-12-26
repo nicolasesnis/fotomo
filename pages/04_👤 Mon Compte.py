@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import json
 from src.s3.read_file import download_s3_file, read_s3_df_file, read_s3_json_file
 from src.s3.upload_file import upload_s3_file
@@ -21,6 +22,7 @@ cookie_manager = get_manager()
 def end_session():
     cookie_manager.delete('user_cookie')
 
+all_orders = pd.read_csv('orders/all_orders.csv')
 
 if 'user_cookie' not in cookie_manager.get_all(): # User is not logged in
     st.write("Connectez-vous pour accéder à votre espace client")
@@ -42,8 +44,12 @@ else: # User is logged in
             st.success("Merci pour votre commande ! Un email de confirmation a été envoyé à " + user_cookie['email'] + ". Vous pouvez suivre l'état de votre commande à tout moment en vous connectant à votre espace client Fotomo.")
             if 'basket' in cookie_manager.get_all(key='empty_basket'):
                 cookie_manager.delete('basket')
-            order = read_s3_json_file('s3://fotomo-secrets/orders/' + order_id + '.json')
+            with open('orders/' + order_id + '.json', 'r') as f:
+                order = json.load(f)
+            all_orders.loc[all_orders.order_id == order_id, 'payment_confirmed'] = True
+            all_orders.to_csv('orders/all_orders.csv', index=None)
             send_email(['nicolas.esnis@gmail.com', 'valerie.esnis@fotomo.fr'], 'Nouvelle commande sur Fotomo.fr', json.dumps(order, indent=4))
+            
     tab1, tab2 = st.tabs(["Mes informations personnelles", "Mes commandes"])
     with tab1:
 
@@ -61,37 +67,30 @@ else: # User is logged in
                 st.write('Bonjour chère mère')
             
             def sync_photos():
-                private = [i['Key'] for i in list_bucket('s3://fotomo/')]
-                public = [i['Key'] for i in list_bucket('s3://low-resolution-images/')]
-                for item in private:
-                    if item not in public or 1==1:
-                        if '.' in item: # ignore albums
-                            img_name = item.split('/')[-1]
-                            download_s3_file('s3://fotomo/' + item, img_name)
-                            image_file = Image.open(img_name)
+                for path, subdirs, files in os.walk('images/letters'):
+                    for name in files:
+                        album = path.split('/')[-1]
+                        if album not in os.listdir('images/low-resolution-images'):
+                            os.mkdir('images/low-resolution-images/' + album)
+                        if name not in os.listdir('images/low-resolution-images/' + album):
+                            image_file = Image.open(path + '/' + name)
                             image_file = image_file.convert('RGB')
-                            if 'Galerie' not in item:
-                                image_file.save(img_name, quality = 5   )
-                                st.write(img_name)
-                            else:
-                                image_file.save(img_name, quality= 100)
-                            upload_s3_file(img_name, 's3://low-resolution-images/' + item)
-                            os.remove(img_name)                    
-                            
+                            image_file.save('images/low-resolution-images/'  + album + '/' + name, quality = 5   )
+                            st.write('images/low-resolution-images/' + album + '/' + name)
             
             if st.button('Sync Photos'):
                 sync_photos()
             
             
     with tab2:
-        all_orders = read_s3_df_file('s3://fotomo-secrets/orders/all_orders.csv')
-        orders = all_orders[all_orders[all_orders.columns[0]] == user_cookie['email']].reset_index()
+        orders = all_orders[(all_orders[all_orders.columns[0]] == user_cookie['email']) & (all_orders.payment_confirmed == True)].reset_index()
         if len(orders) == 0:
             st.info("Vous n'avez aucune commande en cours ou passée.")
         else:
             for index, row in orders.iterrows():
                 with st.expander(row['date'] + ' - ' + row['price'] + '€ - ' + row[orders.columns[-1]], True if index==0 else False):
-                    order = read_s3_json_file('s3://fotomo-secrets/orders/' + row['order_id'] + '.json')
+                    with open('orders/' + row['order_id'] + '.json', 'r') as f:
+                        order = json.load(f)
                     items = [value for key, value in order.items() if 'item' in key]
                     for i, item in enumerate(items):
                         

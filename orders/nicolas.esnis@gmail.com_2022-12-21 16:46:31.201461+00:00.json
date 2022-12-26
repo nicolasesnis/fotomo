@@ -1,0 +1,41 @@
+{
+    "item_0": {
+        "0": {
+            "letter": "Y",
+            "index": 0,
+            "letter_photo_name": "Y rampe Var",
+            "letter_photo_path": "images/low-resolution-images/Y/Y rampe Var.jpg"
+        },
+        "1": {
+            "letter": "A",
+            "index": 3,
+            "letter_photo_name": "A ancre",
+            "letter_photo_path": "images/low-resolution-images/A/A ancre.jpg"
+        },
+        "2": {
+            "letter": "L",
+            "index": 0,
+            "letter_photo_name": "L sable",
+            "letter_photo_path": "images/low-resolution-images/L/L sable.jpg"
+        },
+        "3": {
+            "letter": "A",
+            "index": 2,
+            "letter_photo_name": "A tour eiffel",
+            "letter_photo_path": "images/low-resolution-images/A/A tour eiffel.jpg"
+        },
+        "number_photos": 4,
+        "text": "YALA",
+        "text_len": 4,
+        "id": "images/low-resolution-images/Y/Y rampe Var.jpg_images/low-resolution-images/A/A ancre.jpg_images/low-resolution-images/L/L sable.jpg_images/low-resolution-images/A/A tour eiffel.jpg",
+        "price": 23.0,
+        "frame_price": 3,
+        "frame": "Sous-verre",
+        "quantity": 1
+    },
+    "price": 23.0,
+    "email": "nicolas.esnis@gmail.com",
+    "purchase_time": "2022-12-21 16:46:31.201235+00:00",
+    "payment_confirmed": false,
+    "id": "nicolas.esnis@gmail.com_2022-12-21 16:46:31.201461+00:00"
+}

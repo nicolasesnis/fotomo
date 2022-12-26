@@ -46,7 +46,8 @@ def preview_with_frame(text_list):
     urls = []
     for url in [l['letter_photo_path'] for l in text_list]:
         if url:
-            url = create_presigned_url('fotomo', '/'.join(url.split('/')[3:]))
+            url = url.replace('low-resolution-images', 'letters')
+            # url = create_presigned_url('fotomo', '/'.join(url.split('/')[3:]))
         else:
             url = None
         urls.append(url)

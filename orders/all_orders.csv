@@ -1,0 +1,2 @@
+email,order_id,date,price,status,payment_confirmed
+nicolas.esnis@gmail.com,nicolas.esnis@gmail.com_2022-12-21 16:46:31.201461+00:00,2022-12-21,23.0,Paiement reçu/Commande reçue,False

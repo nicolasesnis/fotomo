@@ -1,6 +1,6 @@
 import streamlit as st
+import os
 import datetime
-from src.s3.list_photos import list_bucket
 from random import randrange
 from src.cookies.utils import get_manager
 
@@ -14,17 +14,13 @@ cookie_manager = get_manager()
 
 @st.cache
 def load_letters():
-    """
-    Loads all the letter images from S3.
-    """
-    all_albums = list_bucket('s3://low-resolution-images')
+    all_albums = os.listdir('images/low-resolution-images')
     letters = {}
-    for photo in all_albums:
-        album = photo['Key'].split('/')[0]
-        if album not in ['Logos', 'Galerie'] and photo['Key'].split('/')[1] != "":
+    for album in all_albums:
+        for photo in os.listdir('images/low-resolution-images/' + album):
             if album not in letters.keys():
                 letters[album] = {}
-            letters[album][photo['Key'].split('/')[1].split('.')[0]] = {'path': 'https://low-resolution-images.s3.amazonaws.com/' + photo['Key']}
+            letters[album][photo.split('.')[0]] = {'path': 'images/low-resolution-images/' + album + '/' + photo}
     return letters 
 letters_photos = load_letters()
 

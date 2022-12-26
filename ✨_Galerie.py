@@ -1,4 +1,5 @@
 import streamlit as st
+from src.utils import img_to_html
 import os, json
 from src.s3.list_photos import list_bucket
 from src.styles.utils import cta_button, sidebar_font_color, set_bg_pattern, hide_navbar
@@ -47,12 +48,12 @@ st.write('')
 st.write('')
 st.write('')
 st.markdown("""<p style='text-align: center; font-size: 1.2em; font-family: "Georgia", Times, serif;'>Mes lettres sont à votre disposition pour écrire le mot de votre choix et l’offrir à ceux que vous aimez.</p>""", unsafe_allow_html=True)
-cta_button("Créer mon mot", custom_theme['colorPaletteLightGreen'], 'https://fotomo.streamlitapp.com/Créer_mon_mot')
+cta_button("Créer mon mot", custom_theme['colorPaletteLightGreen'], 'https://fotomo.fr/Créer_mon_mot')
 
 st.write('')
-st.subheader('*Galerie*')
+st.header('*Galerie*')
 
-galerie = list_bucket('s3://fotomo/Galerie')
+galerie = os.listdir('images/galerie')
 
 st.markdown(
     """
@@ -102,7 +103,7 @@ st.markdown(
     }
     </style>
     <section id="photos">""" + ''.join([
-        "<img src = 'https://low-resolution-images.s3.amazonaws.com/" + photo['Key'] + "' alt= '" + photo['Key'].split('/')[1].split('.')[0] + "'/>" 
+        img_to_html('images/galerie/' + photo)
         for photo in galerie]) + """
     </section>
     """,
