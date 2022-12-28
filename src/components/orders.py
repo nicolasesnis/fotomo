@@ -18,7 +18,7 @@ def save_new_order(basket, email):
     with open('orders/' + basket['id'] + '.json', 'w') as f:
         json.dump(basket, f, indent=4)
     all_orders = pd.read_csv('orders/all_orders.csv')
-    all_orders.loc[len(all_orders)] = [email, basket['id'], str(pd.to_datetime('today').date()), basket['price'], 'Paiement reçu/Commande reçue']
+    all_orders.loc[len(all_orders)] = [email, basket['id'], str(pd.to_datetime('today').date()), basket['price'], 'Paiement reçu/Commande reçue', False]
     all_orders.to_csv('orders/all_orders.csv', index=None)
     with a:
         st.write('')

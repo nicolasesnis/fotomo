@@ -39,22 +39,25 @@ def get_prices(basket):
             basket[item_index]['price'] = item['price'] * item['quantity']
         
 
-@st.cache(ttl=60)
+# @st.cache(ttl=60, suppress_st_warning=True)
 def preview_with_frame(text_list):       
-    background_color = 'rgb(225,225,225)'
+    background_color = '#FFFFFF'
+    frame_color = 'rgb(0,0,0)'
     
     urls = []
     for url in [l['letter_photo_path'] for l in text_list]:
         if url:
-            url = url.replace('low-resolution-images', 'letters')
+            # url = 'https://images.fotomo.fr/' + url
             # url = create_presigned_url('fotomo', '/'.join(url.split('/')[3:]))
+            url = url.replace('low-resolution-images', 'letters')
         else:
             url = None
         urls.append(url)
     images = []
     for url in urls:
         if url:
-            images.append(Image.open(BytesIO(requests.get(url).content)))
+            # images.append(Image.open(BytesIO(requests.get(url).content), timeout=9999999))
+            images.append(Image.open(url))
         else:
             last_size = images[-1].size
             img = Image.new('RGB', (last_size[0],last_size[1]) , background_color) 
@@ -66,7 +69,6 @@ def preview_with_frame(text_list):
     total_width = sum(widths) + interval * (len(text_list) - 1)
     max_height = max(heights)
     
-    frame_color = 'rgb(0,0,0)'
     new_im = Image.new('RGB', (total_width, max_height), color=background_color)
     x_offset = 0
     for im in images:
@@ -74,8 +76,9 @@ def preview_with_frame(text_list):
         x_offset += interval + im.size[0]
     with_background = ImageOps.expand(new_im,border=300,fill=background_color)
     with_frame = ImageOps.expand(with_background,border=500,fill=frame_color)
+    with_frame_white = ImageOps.expand(with_frame,border=100,fill=background_color)
 
-    return with_frame
+    return with_frame_white
 
 def get_frames():
     products, prices  = load_product_prices()
@@ -133,14 +136,14 @@ def show_basket(basket):
             
             
             col1, col2, col3 = st.columns([4,2,5])
-            with col1:
-                frame =  st.selectbox('Option: Cadre', [f['name'] + ' (+ ' + str(f['price']) + ' €)' for f in available_frames], index=[f['name'] for f in available_frames].index(frame), key=str(item_index) + "_radio_" + text)
-                frame = frame.split(' (')[0] # remove price
-                if frame != 'Sans Cadre':
-                    st.info([f['description'] for f in frames if f['name'] == frame][0])
-            with col2:
-                if frame != 'Sans Cadre':
-                    st.image([f['image'] for f in frames if f['name'] == frame][0])
+            # with col1:
+            frame =  st.selectbox('Option: Cadre', [f['name'] + ' (+ ' + str(f['price']) + ' €)' for f in available_frames], index=[f['name'] for f in available_frames].index(frame), key=str(item_index) + "_radio_" + text)
+            frame = frame.split(' (')[0] # remove price
+            if frame != 'Sans Cadre':
+                st.info([f['description'] for f in frames if f['name'] == frame][0])
+            # with col2:
+            #     if frame != 'Sans Cadre':
+            #         st.image([f['image'] for f in frames if f['name'] == frame][0])
             
             if 'bois' in frame and st.button('✨ Prévisualiser avec le cadre en qualité maximale', key=str(item_index) + "_preview_" + text):
                 img = preview_with_frame(text_list)

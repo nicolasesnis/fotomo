@@ -1,10 +1,7 @@
 [theme]
-primaryColor="#EF8354"
-backgroundColor="#FFFFFF"
-secondaryBackgroundColor="#FFFFF"
-textColor="#2D3142"
-#secondaryTextColor="#BFC0C0"
 font="sans serif"
+base="dark"
+
 
 [browser]
 serverAddress='fotomo.fr'
