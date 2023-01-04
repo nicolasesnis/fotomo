@@ -44,6 +44,9 @@ else:
             with tab2:
                 register()
         else:
-            order_id = save_new_order(basket, cookies['user_cookie']['email'])
-            out = create_checkout_session(client_email=cookies['user_cookie']['email'], order_id=order_id, basket=basket)
-            st.markdown('<a href="' + out + '" target="_blank">Payer avec Stripe (nouvelle fenêtre)</a>', unsafe_allow_html=True)
+            if st.button('Payer avec notre partenaire Stripe'):
+                order_id = save_new_order(basket, cookies['user_cookie']['email'])
+                out = create_checkout_session(client_email=cookies['user_cookie']['email'], order_id=order_id, basket=basket)
+                nav_script = """<meta http-equiv="refresh" content="0; url='""" + out + """'">""" 
+                st.write(nav_script, unsafe_allow_html=True)
+                

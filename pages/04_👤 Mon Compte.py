@@ -47,6 +47,7 @@ else: # User is logged in
             with open('orders/' + order_id + '.json', 'r') as f:
                 order = json.load(f)
             all_orders.loc[all_orders.order_id == order_id, 'payment_confirmed'] = True
+            all_orders.loc[all_orders.order_id == order_id, 'status'] = 'Paiement effectué - Traitement en cours'
             all_orders.to_csv('orders/all_orders.csv', index=None)
             send_email(['nicolas.esnis@gmail.com', 'valerie.esnis@fotomo.fr'], 'Nouvelle commande sur Fotomo.fr', json.dumps(order, indent=4))
             
@@ -88,7 +89,7 @@ else: # User is logged in
             st.info("Vous n'avez aucune commande en cours ou passée.")
         else:
             for index, row in orders.iterrows():
-                with st.expander(row['date'] + ' - ' + row['price'] + '€ - ' + row[orders.columns[-1]], True if index==0 else False):
+                with st.expander(row['date'] + ' - ' + str(row['price']) + '€ - ' + row['status'], True if index==0 else False):
                     with open('orders/' + row['order_id'] + '.json', 'r') as f:
                         order = json.load(f)
                     items = [value for key, value in order.items() if 'item' in key]
@@ -109,8 +110,7 @@ else: # User is logged in
                         for letter_index, col in enumerate(cols):
                             with col:
                                 if item[str(letter_index)]['letter_photo_path']:
-                                    
-                                    st.image(item[str(letter_index)]['letter_photo_path'])
+                                    st.image(item[str(letter_index)]['letter_photo_path'].replace('low-resolution-images', 'letters'))
                                 
         
             

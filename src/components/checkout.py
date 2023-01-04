@@ -35,13 +35,14 @@ def create_checkout_session(client_email, order_id, basket=None):
         checkout_session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
-            success_url='https://fotomo.streamlitapp.com/Mon_Compte?order_id=' + order_id,
-            cancel_url='https://fotomo.streamlitapp.com/Mon_panier',
+            success_url='https://fotomo.fr/Mon_Compte?order_id=' + order_id,
+            cancel_url='https://fotomo.fr/Mon_panier',
             metadata = {'order_id': order_id},
             client_reference_id = client_email,
             billing_address_collection='required',
             shipping_address_collection={'allowed_countries': ['FR']},
-            shipping_options=[{'shipping_rate': 'shr_1LuQ5iGY9GmA5aoIMrYzMy0O' if basket else 'shr_1LuPynGY9GmA5aoIw6bXkeLt'}]
+            shipping_options=[{'shipping_rate': 'shr_1LuQ5iGY9GmA5aoIMrYzMy0O' if basket else 'shr_1LuPynGY9GmA5aoIw6bXkeLt'}],
+            locale='fr'
         )
     except Exception as e:
         return str(e)
