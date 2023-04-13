@@ -1,3 +1,6 @@
 email,order_id,date,price,status,payment_confirmed
 valerie.esnis@fotomo.fr,e78b5b3b-48b5-44d2-bbf9-d3491553e9d9,2023-01-04,5.0,Paiement effectué - Traitement en cours,True
 valerie.esnis@fotomo.fr,670e0ca2-f76b-40b7-9ffc-d21c4e6c81c3,2023-01-04,5.0,Lien de paiement cliqué,False
+valerie.esnis@fotomo.fr,aa7fb432-6ba9-4ef2-96b1-7f64618bfe33,2023-01-04,5.0,Paiement effectué - Traitement en cours,True
+daniel.sabathie@orange.fr,74624191-5dbb-4041-91d7-611e342f5864,2023-01-07,38.0,Paiement effectué - Traitement en cours,True
+nicolas.esnis@gmail.com,f511dd3b-ee0f-462b-9d92-849febb5965a,2023-04-12,25.0,Lien de paiement cliqué,False

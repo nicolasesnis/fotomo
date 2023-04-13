@@ -4,16 +4,14 @@ import datetime
 from PIL import Image ,ImageOps
 import requests
 from io import BytesIO
-from src.s3.read_file import create_presigned_url
 from src.stripe.utils import get_product_price, load_product_prices
 import numpy as np
 
 
 Image.MAX_IMAGE_PIXELS = 10000000000
 
-@st.cache(allow_output_mutation=True)
 def get_manager():
-    return stx.CookieManager()
+    return stx.CookieManager(key='new')
 
 def save_basket(basket, item_index, cookie_manager, text, new = None):
     if new:
@@ -49,7 +47,8 @@ def preview_with_frame(text_list):
         if url:
             # url = 'https://images.fotomo.fr/' + url
             # url = create_presigned_url('fotomo', '/'.join(url.split('/')[3:]))
-            url = url.replace('low-resolution-images', 'letters')
+            # url = url.replace('low-resolution-images', 'letters')
+            url = url
         else:
             url = None
         urls.append(url)
@@ -65,7 +64,7 @@ def preview_with_frame(text_list):
     
     widths, heights = zip(*(i.size for i in images))
     
-    interval = 300
+    interval = 100
     total_width = sum(widths) + interval * (len(text_list) - 1)
     max_height = max(heights)
     
@@ -74,9 +73,9 @@ def preview_with_frame(text_list):
     for im in images:
         new_im.paste(im, (x_offset, 0))
         x_offset += interval + im.size[0]
-    with_background = ImageOps.expand(new_im,border=300,fill=background_color)
-    with_frame = ImageOps.expand(with_background,border=500,fill=frame_color)
-    with_frame_white = ImageOps.expand(with_frame,border=100,fill=background_color)
+    with_background = ImageOps.expand(new_im,border=100,fill=background_color)
+    with_frame = ImageOps.expand(with_background,border=100,fill=frame_color)
+    with_frame_white = ImageOps.expand(with_frame,border=50,fill=background_color)
 
     return with_frame_white
 
@@ -92,10 +91,10 @@ def get_frames():
 def show_basket(basket):
     
     non_letter_keys = ['quantity', 'frame', 'price', 'text', 'number_photos', 'text_len', 'id', 'frame_price']
-    cookie_manager = get_manager()
+    cookie_manager = get_manager(key='basket')
     frames = get_frames()
     get_prices(basket)
-    
+
     st.write('Sous-total avant les frais de livraison : __' +  str(sum([item['price'] for item in basket])) + '__ €')
     
     st.info('Les photos sont imprimées professionnellement en format 10 x 15 cm, finition brillante, sur papier Fujifilm épais (210 g/m2).')
@@ -125,7 +124,7 @@ def show_basket(basket):
             if 'frame' in item.keys():
                 frame = item['frame']
             else:
-                frame = available_frames[0]['name']
+                frame = 'Sans Cadre'
             
             if item['text_len'] > 10:
                 st.info('Votre mot fait plus de 10 photos. Contactez-moi pour un devis de cadre ou de sous-verre sur mesure')
@@ -145,7 +144,7 @@ def show_basket(basket):
             #     if frame != 'Sans Cadre':
             #         st.image([f['image'] for f in frames if f['name'] == frame][0])
             
-            if 'bois' in frame and st.button('✨ Prévisualiser avec le cadre en qualité maximale', key=str(item_index) + "_preview_" + text):
+            if 'bois' in frame and st.button('✨ Prévisualiser avec le cadre', key=str(item_index) + "_preview_" + text):
                 img = preview_with_frame(text_list)
                 st.image(img)
             

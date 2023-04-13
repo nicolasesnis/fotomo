@@ -7,7 +7,7 @@ import datetime, os
 from PIL import Image
 from src.cookies.utils import get_manager
 
-cookie_manager = get_manager()
+cookie_manager = get_manager(key='login')
 
 all_users = pd.read_csv('secrets/website_users.csv')
 

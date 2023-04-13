@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
 import json
-from src.s3.read_file import download_s3_file, read_s3_df_file, read_s3_json_file
-from src.s3.upload_file import upload_s3_file
-from src.s3.list_photos import list_bucket
 from src.email.utils import send_email
 import os
 from PIL import Image
@@ -17,7 +14,7 @@ st.set_page_config(
 
 from src.components.login import login, register
 
-cookie_manager = get_manager()
+cookie_manager = get_manager(key='account')
 
 def end_session():
     cookie_manager.delete('user_cookie')
@@ -40,16 +37,19 @@ else: # User is logged in
     user_cookie = cookie_manager.get('user_cookie')
     if 'order_id' in st.experimental_get_query_params():
             order_id = st.experimental_get_query_params()['order_id'][0]
-            st.balloons()
-            st.success("Merci pour votre commande ! Un email de confirmation a été envoyé à " + user_cookie['email'] + ". Vous pouvez suivre l'état de votre commande à tout moment en vous connectant à votre espace client Fotomo.")
-            if 'basket' in cookie_manager.get_all(key='empty_basket'):
-                cookie_manager.delete('basket')
-            with open('orders/' + order_id + '.json', 'r') as f:
-                order = json.load(f)
-            all_orders.loc[all_orders.order_id == order_id, 'payment_confirmed'] = True
-            all_orders.loc[all_orders.order_id == order_id, 'status'] = 'Paiement effectué - Traitement en cours'
-            all_orders.to_csv('orders/all_orders.csv', index=None)
-            send_email(['nicolas.esnis@gmail.com', 'valerie.esnis@fotomo.fr'], 'Nouvelle commande sur Fotomo.fr', json.dumps(order, indent=4))
+            if all_orders.loc[all_orders.order_id == order_id, 'payment_confirmed'].values[0] == False:
+                if 'basket' in cookie_manager.get_all(key='empty_basket'):
+                    cookie_manager.delete('basket')
+                with open('orders/' + order_id + '.json', 'r') as f:
+                    order = json.load(f)
+                all_orders.loc[all_orders.order_id == order_id, 'payment_confirmed'] = True
+                all_orders.loc[all_orders.order_id == order_id, 'status'] = 'Paiement effectué - Traitement en cours'
+                all_orders.to_csv('orders/all_orders.csv', index=None)
+                send_email(['nicolas.esnis@gmail.com', 'valerie.esnis@fotomo.fr'], 'Nouvelle commande sur Fotomo.fr', json.dumps(order, indent=4))
+                
+                st.balloons()
+                st.success("Merci pour votre commande ! Un email de confirmation a été envoyé à " + user_cookie['email'] + ". Vous pouvez suivre l'état de votre commande à tout moment en vous connectant à votre espace client Fotomo.")
+                
             
     tab1, tab2 = st.tabs(["Mes informations personnelles", "Mes commandes"])
     with tab1:
@@ -71,13 +71,22 @@ else: # User is logged in
                 for path, subdirs, files in os.walk('images/letters'):
                     for name in files:
                         album = path.split('/')[-1]
-                        if album not in os.listdir('images/low-resolution-images'):
-                            os.mkdir('images/low-resolution-images/' + album)
-                        if name not in os.listdir('images/low-resolution-images/' + album):
-                            image_file = Image.open(path + '/' + name)
-                            image_file = image_file.convert('RGB')
-                            image_file.save('images/low-resolution-images/'  + album + '/' + name, quality = 5   )
-                            st.write('images/low-resolution-images/' + album + '/' + name)
+                        extension = name.split('.')[-1]
+                        for folder in [
+                            'images/low-resolution-images/'
+                            # 'images/thumbnails/': 1,
+                        ]:
+                            if album not in os.listdir(folder):
+                                os.mkdir(folder + album)
+                            if name not in os.listdir(folder + album):
+                                image_file = Image.open(path + '/' + name)
+                                image_file = image_file.convert('RGB')
+                                max_width = 300
+                                wpercent = (max_width/float(image_file.size[0]))
+                                max_height = int((float(image_file.size[1])*float(wpercent)))
+                                image_file = image_file.resize((max_width,max_height),Image.ANTIALIAS)
+                                image_file.save(folder  + album + '/' + name.replace(extension, 'webp'), 'webp', optimize = True, quality = 95)
+                                st.write(folder + album + '/' + name)
             
             if st.button('Sync Photos'):
                 sync_photos()

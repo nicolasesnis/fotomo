@@ -16,7 +16,7 @@ from src.components.login import login, register
 
 
 
-cookie_manager = get_manager()
+cookie_manager = get_manager(key='basket')
 
 cookies = cookie_manager.get_all()
 
