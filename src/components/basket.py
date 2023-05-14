@@ -10,8 +10,8 @@ import numpy as np
 
 Image.MAX_IMAGE_PIXELS = 10000000000
 
-def get_manager():
-    return stx.CookieManager(key='new')
+def get_manager(key):
+    return stx.CookieManager(key=key)
 
 def save_basket(basket, item_index, cookie_manager, text, new = None):
     if new:
@@ -91,7 +91,7 @@ def get_frames():
 def show_basket(basket):
     
     non_letter_keys = ['quantity', 'frame', 'price', 'text', 'number_photos', 'text_len', 'id', 'frame_price']
-    cookie_manager = get_manager(key='basket')
+    cookie_manager = get_manager(key='show_basket')
     frames = get_frames()
     get_prices(basket)
 

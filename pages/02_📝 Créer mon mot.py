@@ -102,7 +102,7 @@ with col1:
     text_input = st.text_input('', value=initial_value,  on_change=set_text_dict, placeholder='Pierre, Bretagne, Bienvenue...', key='text_input')
 with col2:
     if len(text_input) > 0:
-        st.session_state['max_letters_per_row'] = st.number_input('Nombre de photos prévisualisées par ligne', value=9, min_value=0, help="Cette option affecte seulement la prévisualisation des photos ici. Les photos dont vous passez commande seront imprimées et encadrées sur une seule ligne, sauf demande spéciale.")
+        st.session_state['max_letters_per_row'] = st.number_input('Nombre de photos prévisualisées par ligne', value=len(text_input) if len(text_input) <= 9 else 9, min_value=0, max_value=9, help="Cette option affecte seulement la prévisualisation des photos ici. Les photos dont vous passez commande seront imprimées et encadrées sur une seule ligne, sauf demande spéciale.")
 
 splitted_text_input = [list(text_input)[x:x+st.session_state['max_letters_per_row']] for x in range(0, len(list(text_input)), st.session_state['max_letters_per_row'])]
 

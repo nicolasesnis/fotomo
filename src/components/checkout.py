@@ -45,6 +45,7 @@ def create_checkout_session(client_email, order_id, basket=None):
             locale='fr'
         )
     except Exception as e:
+        st.error(e)
         return str(e)
 
     return checkout_session.url
